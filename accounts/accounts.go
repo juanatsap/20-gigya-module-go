@@ -140,14 +140,8 @@ type Profile struct {
 	Email     string `json:"email"`
 }
 
-type Accounts struct {
-	Accounts []Account `json:"accounts"`
-}
+type Accounts []Account
 
-func table(accounts Accounts) {
-
-	for _, account := range accounts.Accounts {
-		fmt.Println(account.UID)
-	}
+func (accounts Accounts) Table() {
 
 }

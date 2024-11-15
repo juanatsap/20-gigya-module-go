@@ -26,7 +26,7 @@ func NewAccountsAPI(apiKey, userKey, secretKey, apiDomain string) *AccountsAPI {
 		apiDomain: apiDomain,
 	}
 }
-func (a *AccountsAPI) Search(query string, limit int) ([]Account, error) {
+func (a *AccountsAPI) Search(query string, limit int) (Accounts, error) {
 
 	if limit < 1 {
 		limit = 1
@@ -82,13 +82,13 @@ func (a *AccountsAPI) Search(query string, limit int) ([]Account, error) {
 
 // SearchResponse representa la respuesta completa de accounts.search
 type SearchResponse struct {
-	CallID       string    `json:"callId"`
-	ErrorCode    int       `json:"errorCode"`
-	APIVersion   int       `json:"apiVersion"`
-	StatusCode   int       `json:"statusCode"`
-	StatusReason string    `json:"statusReason"`
-	Time         string    `json:"time"`
-	Results      []Account `json:"results"`
-	ObjectsCount int       `json:"objectsCount"`
-	TotalCount   int       `json:"totalCount"`
+	CallID       string   `json:"callId"`
+	ErrorCode    int      `json:"errorCode"`
+	APIVersion   int      `json:"apiVersion"`
+	StatusCode   int      `json:"statusCode"`
+	StatusReason string   `json:"statusReason"`
+	Time         string   `json:"time"`
+	Results      Accounts `json:"results"`
+	ObjectsCount int      `json:"objectsCount"`
+	TotalCount   int      `json:"totalCount"`
 }
