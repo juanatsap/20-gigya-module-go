@@ -79,6 +79,100 @@ func (a *AccountsAPI) Search(query string, limit int) (Accounts, error) {
 
 	return response.Results, nil
 }
+func (a *AccountsAPI) SetAccountInfoLite(account Account) (Account, error) {
+
+	// Añadir parámetros
+	method := "accounts.setAccountInfo"
+	params := map[string]string{
+		"UID":     account.UID,
+		"apiKey":  a.apiKey,
+		"userKey": a.userKey,
+		"secret":  a.secretKey,
+		"profile": account.Profile.AsJSON(),
+		// "data":    account.Data.AsJSON(),
+		// "data":   `{"competition":{"name":null,"when":null}}`,
+		"isLite": "true",
+	}
+
+	// Preparar la URL de la solicitud
+	baseURL := fmt.Sprintf("https://%s/%s", a.apiDomain, method)
+	data := url.Values{}
+	for key, value := range params {
+		data.Set(key, value)
+	}
+
+	// Enviar la solicitud POST
+	resp, err := http.Post(baseURL, "application/x-www-form-urlencoded", strings.NewReader(data.Encode()))
+	if err != nil {
+		return Account{}, err
+	}
+	defer resp.Body.Close()
+
+	// Leer la respuesta
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return Account{}, err
+	}
+
+	// Deserializar la respuesta JSON en SearchResponse
+	var response SetAccountInfoResponse
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return Account{}, err
+	}
+
+	// Verificar si hubo un error en la respuesta
+	if response.ErrorCode != 0 {
+		return Account{}, fmt.Errorf("API error %d: %s", response.ErrorCode, response.StatusReason)
+	}
+
+	return Account{UID: response.UID}, nil
+}
+func (a *AccountsAPI) GetAccountInfo(UID string) (Account, error) {
+
+	// Añadir parámetros
+	method := "accounts.getAccountInfo"
+	params := map[string]string{
+		"UID":     UID,
+		"apiKey":  a.apiKey,
+		"userKey": a.userKey,
+		"secret":  a.secretKey,
+	}
+
+	// Preparar la URL de la solicitud
+	baseURL := fmt.Sprintf("https://%s/%s", a.apiDomain, method)
+	data := url.Values{}
+	for key, value := range params {
+		data.Set(key, value)
+	}
+
+	// Enviar la solicitud POST
+	resp, err := http.Post(baseURL, "application/x-www-form-urlencoded", strings.NewReader(data.Encode()))
+	if err != nil {
+		return Account{}, err
+	}
+	defer resp.Body.Close()
+
+	// Leer la respuesta
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return Account{}, err
+	}
+
+	// Deserializar la respuesta JSON en SearchResponse
+	var response GetAccountInfoResponse
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return Account{}, err
+	}
+
+	// Verificar si hubo un error en la respuesta
+	if response.ErrorCode != 0 {
+		return Account{}, fmt.Errorf("API error %d: %s", response.ErrorCode, response.StatusReason)
+	}
+
+	return Account{UID: response.UID}, nil
+}
 
 // SearchResponse representa la respuesta completa de accounts.search
 type SearchResponse struct {
@@ -91,4 +185,25 @@ type SearchResponse struct {
 	Results      Accounts `json:"results"`
 	ObjectsCount int      `json:"objectsCount"`
 	TotalCount   int      `json:"totalCount"`
+}
+type SetAccountInfoResponse struct {
+	CallID       string `json:"callId"`
+	ErrorCode    int    `json:"errorCode"`
+	APIVersion   int    `json:"apiVersion"`
+	StatusCode   int    `json:"statusCode"`
+	StatusReason string `json:"statusReason"`
+	Time         string `json:"time"`
+	UID          string `json:"UID"`
+}
+type GetAccountInfoResponse struct {
+	CallID       string      `json:"callId"`
+	ErrorCode    int         `json:"errorCode"`
+	APIVersion   int         `json:"apiVersion"`
+	StatusCode   int         `json:"statusCode"`
+	StatusReason string      `json:"statusReason"`
+	Time         string      `json:"time"`
+	UID          string      `json:"UID"`
+	Profile      Profile     `json:"profile"`
+	Data         Data        `json:"data"`
+	Preferences  Preferences `json:"preferences"`
 }

@@ -1,6 +1,9 @@
 package accounts
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+)
 
 // Account representa una cuenta individual en Gigya
 type Account struct {
@@ -44,11 +47,11 @@ func (a Account) Print() {
 	fmt.Println("--------------------")
 	fmt.Println("Data:")
 	fmt.Println("--------------------")
-	fmt.Printf("  LIVX Member: %s\n", a.Data.LIVXMember)
-	fmt.Printf("  Visited: %s\n", a.Data.Visited)
-	fmt.Printf("  Competition: %s\n", a.Data.Competition)
-	fmt.Printf("  Favorite Team: %s\n", a.Data.FavoriteTeam)
-	fmt.Printf("  Data Source: %s\n", a.Data.DataSource)
+	// fmt.Printf("  LIVX Member: %s\n", a.Data.LIVXMember)
+	// fmt.Printf("  Visited: %s\n", a.Data.Visited)
+	// fmt.Printf("  Competition: %s\n", *a.Data.Competition.Name)
+	// fmt.Printf("  Favorite Team: %s\n", *a.Data.FavoriteTeam.Name)
+	// fmt.Printf("  Data Source: %s\n", a.Data.DataSource)
 	fmt.Printf("  Events: %s\n", a.Data.Events)
 	fmt.Println("")
 	fmt.Println("--------------------")
@@ -112,36 +115,175 @@ type DoubleOptInDetail struct {
 
 // Data representa los datos personalizados de la cuenta
 type Data struct {
-	LIVXMember   string    `json:"LIVX_Member"`
-	Visited      string    `json:"visited"`
-	Competition  NameWhen  `json:"competition"`
-	FavoriteTeam NameSince `json:"favoriteTeam"`
-	DataSource   string    `json:"dataSource"`
-	Events       NameWhen  `json:"events"`
+	// LIVXMember string `json:"LIVX_Member,omitempty"`
+	// Visited      string     `json:"visited,omitempty"`
+	Competition *NameWhen `json:"competition,omitempty"`
+	// FavoriteTeam *NameSince `json:"favoriteTeam,omitempty"`
+	// DataSource string `json:"dataSource,omitempty"`
+	Events *Event `json:"events,omitempty"`
+}
+
+func (a Data) AsJSON() string {
+	data, _ := json.Marshal(a)
+	return string(data)
 }
 
 // NameWhen representa una estructura con nombre y fecha
 type NameWhen struct {
-	Name string `json:"name"`
-	When string `json:"when"`
+	Name DynamicStringArray `json:"name,omitempty"`
+	When DynamicStringArray `json:"when,omitempty"`
 }
+type Event NameWhen
 
 // NameSince representa una estructura con nombre y fecha desde
+type NameSinceOld struct {
+	Name  *string `json:"name,omitempty"`
+	Since *string `json:"since,omitempty"`
+}
+
+// NameSince representa una estructura que puede ser un string, un array o un objeto vacío
 type NameSince struct {
-	Name  string `json:"name"`
-	Since string `json:"since"`
+	Name  *string `json:"name,omitempty"`
+	Since *string `json:"since,omitempty"`
+	// Agregamos un campo adicional para almacenar un array si es necesario
+	Names []string `json:"-,omitempty"`
+}
+
+// UnmarshalJSON implementa la interfaz json.Unmarshaler
+func (ns *NameSince) UnmarshalJSON(data []byte) error {
+	// Si los datos son nulos, dejamos ns con valores cero
+	if string(data) == "null" || string(data) == "{}" {
+		return nil
+	}
+
+	// Intentar deserializar como string
+	var s string
+	if err := json.Unmarshal(data, &s); err == nil {
+		ns.Name = &s
+		return nil
+	}
+
+	// Intentar deserializar como array de strings
+	var arr []string
+	if err := json.Unmarshal(data, &arr); err == nil {
+		// Puedes decidir cómo manejar el array
+		// Por ejemplo, asignar el primer elemento a Name
+		if len(arr) > 0 {
+			ns.Name = &arr[0]
+		}
+		// O almacenar todo el array en un campo adicional
+		ns.Names = arr
+		return nil
+	}
+
+	// Intentar deserializar como objeto
+	type Alias NameSince // Crear un alias para evitar recursión infinita
+	var alias Alias
+	if err := json.Unmarshal(data, &alias); err == nil {
+		*ns = NameSince(alias)
+		return nil
+	}
+
+	// Si ninguno de los anteriores funciona, retornar un error
+	return fmt.Errorf("NameSince: no se pudo deserializar los datos: %s", string(data))
+}
+func (ns *NameSince) MarshalJSON() ([]byte, error) {
+	if ns == nil {
+		return nil, nil
+	}
+	if ns.Names != nil {
+		return json.Marshal(ns.Names)
+	}
+	if ns.Since != nil {
+		return json.Marshal(ns.Since)
+	}
+	if ns.Name != nil {
+		return json.Marshal(ns.Name)
+	}
+	if *ns.Name == "null" {
+		return nil, nil
+	}
+	return nil, fmt.Errorf("NameSince: no se pudo serializar el objeto")
 }
 
 // Profile representa el perfil de la cuenta
 type Profile struct {
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
-	Country   string `json:"country"`
-	Email     string `json:"email"`
+	FirstName string `json:"firstName,omitempty"`
+	LastName  string `json:"lastName,omitempty"`
+	Country   string `json:"country,omitempty"`
+	Email     string `json:"email,omitempty"`
+}
+
+func (a Profile) AsJSON() string {
+	data, _ := json.Marshal(a)
+	return string(data)
 }
 
 type Accounts []Account
 
 func (accounts Accounts) Table() {
 
+}
+
+func (a Account) FixedEventsAccount() Account {
+
+	var fixedAccount Account
+	fixedAccount.UID = a.UID
+	var emptyEvent *Event = &Event{
+		Name: nil,
+		When: nil,
+	}
+	fixedAccount.Data.Events = emptyEvent
+	fixedAccount.Profile.Email = a.Email
+
+	return fixedAccount
+}
+
+func (a Account) FixedFavoriteTeamsAccount() Account {
+
+	var fixedAccount Account
+	fixedAccount.UID = a.UID
+	// var emptyFavoriteTeam *NameSince = &NameSince{
+	// 	Name:  nil,
+	// 	Since: nil,
+	// }
+	// fixedAccount.Data.FavoriteTeam = emptyFavoriteTeam
+	fixedAccount.Profile.Email = a.Email
+
+	return fixedAccount
+}
+
+func (a Account) FixedCompetitionAccount() Account {
+
+	var fixedAccount Account
+	fixedAccount.UID = a.UID
+	var emptyCompetition *NameWhen = &NameWhen{
+		Name: nil,
+		When: nil,
+	}
+	fixedAccount.Data.Competition = emptyCompetition
+	fixedAccount.Profile.Email = a.Email
+
+	return fixedAccount
+}
+
+type DynamicStringArray []string
+
+func (d *DynamicStringArray) UnmarshalJSON(data []byte) error {
+	// Si los datos son un string
+	var singleValue string
+	if err := json.Unmarshal(data, &singleValue); err == nil {
+		*d = []string{singleValue}
+		return nil
+	}
+
+	// Si los datos son un array de strings
+	var arrayValue []string
+	if err := json.Unmarshal(data, &arrayValue); err == nil {
+		*d = arrayValue
+		return nil
+	}
+
+	// Retornar un error si no es ninguno de los dos
+	return fmt.Errorf("DynamicStringArray: cannot unmarshal %s", string(data))
 }
