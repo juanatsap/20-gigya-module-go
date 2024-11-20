@@ -3,6 +3,7 @@ package accounts
 import (
 	"encoding/json"
 	"fmt"
+	"gigya-module-go/helpers"
 )
 
 // Account representa una cuenta individual en Gigya
@@ -130,8 +131,8 @@ func (a Data) AsJSON() string {
 
 // NameWhen representa una estructura con nombre y fecha
 type NameWhen struct {
-	Name DynamicStringArray `json:"name,omitempty"`
-	When DynamicStringArray `json:"when,omitempty"`
+	Name helpers.DynamicStringArray `json:"name,omitempty"`
+	When helpers.DynamicStringArray `json:"when,omitempty"`
 }
 type Event NameWhen
 
@@ -229,11 +230,11 @@ func (a Account) FixedEventsAccount() Account {
 
 	var fixedAccount Account
 	fixedAccount.UID = a.UID
-	var emptyEvent *Event = &Event{
-		Name: nil,
-		When: nil,
+	var FixedEventsForAccount *Event = &Event{
+		Name: a.Data.Events.Name.RemoveNulls(),
+		When: a.Data.Events.When.RemoveNulls(),
 	}
-	fixedAccount.Data.Events = emptyEvent
+	fixedAccount.Data.Events = FixedEventsForAccount
 	fixedAccount.Profile.Email = a.Email
 
 	return fixedAccount
@@ -265,25 +266,4 @@ func (a Account) FixedCompetitionAccount() Account {
 	fixedAccount.Profile.Email = a.Email
 
 	return fixedAccount
-}
-
-type DynamicStringArray []string
-
-func (d *DynamicStringArray) UnmarshalJSON(data []byte) error {
-	// Si los datos son un string
-	var singleValue string
-	if err := json.Unmarshal(data, &singleValue); err == nil {
-		*d = []string{singleValue}
-		return nil
-	}
-
-	// Si los datos son un array de strings
-	var arrayValue []string
-	if err := json.Unmarshal(data, &arrayValue); err == nil {
-		*d = arrayValue
-		return nil
-	}
-
-	// Retornar un error si no es ninguno de los dos
-	return fmt.Errorf("DynamicStringArray: cannot unmarshal %s", string(data))
 }
