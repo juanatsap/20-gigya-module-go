@@ -81,6 +81,11 @@ func (a *AccountsAPI) Search(query string, limit int) (Accounts, error) {
 }
 func (a *AccountsAPI) SetAccountInfoLite(account Account) (Account, error) {
 
+	dataAsJSON := account.Data.AsJSON()
+	if dataAsJSON == "{\"favoriteTeam\":{}}" {
+		dataAsJSON = `{"favoriteTeam":{"name":null,"since":null}}`
+	}
+
 	// Añadir parámetros
 	method := "accounts.setAccountInfo"
 	params := map[string]string{
@@ -89,8 +94,8 @@ func (a *AccountsAPI) SetAccountInfoLite(account Account) (Account, error) {
 		"userKey": a.userKey,
 		"secret":  a.secretKey,
 		"profile": account.Profile.AsJSON(),
-		// "data":    account.Data.AsJSON(),
-		// "data":   `{"competition":{"name":null,"when":null}}`,
+		"data":    dataAsJSON,
+		// "data":   `{"favoriteTeam":{"name":null,"since":null}}`,
 		"isLite": "true",
 	}
 
@@ -127,6 +132,53 @@ func (a *AccountsAPI) SetAccountInfoLite(account Account) (Account, error) {
 	}
 
 	return Account{UID: response.UID}, nil
+}
+func (a *AccountsAPI) SetAccountInfo(account Account) (Account, error) {
+
+	// Añadir parámetros
+	method := "accounts.setAccountInfo"
+	params := map[string]string{
+		"UID":     account.UID,
+		"apiKey":  a.apiKey,
+		"userKey": a.userKey,
+		"secret":  a.secretKey,
+		"profile": account.Profile.AsJSON(),
+		"data":    account.Data.AsJSON(),
+	}
+
+	// Preparar la URL de la solicitud
+	baseURL := fmt.Sprintf("https://%s/%s", a.apiDomain, method)
+	data := url.Values{}
+	for key, value := range params {
+		data.Set(key, value)
+	}
+
+	// Enviar la solicitud POST
+	resp, err := http.Post(baseURL, "application/x-www-form-urlencoded", strings.NewReader(data.Encode()))
+	if err != nil {
+		return Account{}, err
+	}
+	defer resp.Body.Close()
+
+	// Leer la respuesta
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return Account{}, err
+	}
+
+	// Deserializar la respuesta JSON en SearchResponse
+	var response SetAccountInfoResponse
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return Account{}, err
+	}
+
+	// Verificar si hubo un error en la respuesta
+	if response.ErrorCode != 0 {
+		return Account{}, fmt.Errorf("API error %d: %s", response.ErrorCode, response.StatusReason)
+	}
+
+	return Account{UID: account.UID}, nil
 }
 func (a *AccountsAPI) GetAccountInfo(UID string) (Account, error) {
 

@@ -118,10 +118,16 @@ type DoubleOptInDetail struct {
 type Data struct {
 	// LIVXMember string `json:"LIVX_Member,omitempty"`
 	// Visited      string     `json:"visited,omitempty"`
-	Competition *NameWhen `json:"competition,omitempty"`
-	// FavoriteTeam *NameSince `json:"favoriteTeam,omitempty"`
+	Competition  *NameWhen  `json:"competition,omitempty"`
+	FavoriteTeam *NameSince `json:"favoriteTeam,omitempty"`
 	// DataSource string `json:"dataSource,omitempty"`
 	Events *Event `json:"events,omitempty"`
+
+	// Add data.utility.isAthlete
+	Utility *Utility `json:"utility,omitempty"`
+}
+type Utility struct {
+	IsAthlete bool `json:"isAthlete,omitempty"`
 }
 
 func (a Data) AsJSON() string {
@@ -131,80 +137,15 @@ func (a Data) AsJSON() string {
 
 // NameWhen representa una estructura con nombre y fecha
 type NameWhen struct {
-	Name helpers.DynamicStringArray `json:"name,omitempty"`
+	Name string                     `json:"name,omitempty"`
 	When helpers.DynamicStringArray `json:"when,omitempty"`
 }
 type Event NameWhen
 
-// NameSince representa una estructura con nombre y fecha desde
-type NameSinceOld struct {
-	Name  *string `json:"name,omitempty"`
-	Since *string `json:"since,omitempty"`
-}
-
 // NameSince representa una estructura que puede ser un string, un array o un objeto vacío
 type NameSince struct {
-	Name  *string `json:"name,omitempty"`
-	Since *string `json:"since,omitempty"`
-	// Agregamos un campo adicional para almacenar un array si es necesario
-	Names []string `json:"-,omitempty"`
-}
-
-// UnmarshalJSON implementa la interfaz json.Unmarshaler
-func (ns *NameSince) UnmarshalJSON(data []byte) error {
-	// Si los datos son nulos, dejamos ns con valores cero
-	if string(data) == "null" || string(data) == "{}" {
-		return nil
-	}
-
-	// Intentar deserializar como string
-	var s string
-	if err := json.Unmarshal(data, &s); err == nil {
-		ns.Name = &s
-		return nil
-	}
-
-	// Intentar deserializar como array de strings
-	var arr []string
-	if err := json.Unmarshal(data, &arr); err == nil {
-		// Puedes decidir cómo manejar el array
-		// Por ejemplo, asignar el primer elemento a Name
-		if len(arr) > 0 {
-			ns.Name = &arr[0]
-		}
-		// O almacenar todo el array en un campo adicional
-		ns.Names = arr
-		return nil
-	}
-
-	// Intentar deserializar como objeto
-	type Alias NameSince // Crear un alias para evitar recursión infinita
-	var alias Alias
-	if err := json.Unmarshal(data, &alias); err == nil {
-		*ns = NameSince(alias)
-		return nil
-	}
-
-	// Si ninguno de los anteriores funciona, retornar un error
-	return fmt.Errorf("NameSince: no se pudo deserializar los datos: %s", string(data))
-}
-func (ns *NameSince) MarshalJSON() ([]byte, error) {
-	if ns == nil {
-		return nil, nil
-	}
-	if ns.Names != nil {
-		return json.Marshal(ns.Names)
-	}
-	if ns.Since != nil {
-		return json.Marshal(ns.Since)
-	}
-	if ns.Name != nil {
-		return json.Marshal(ns.Name)
-	}
-	if *ns.Name == "null" {
-		return nil, nil
-	}
-	return nil, fmt.Errorf("NameSince: no se pudo serializar el objeto")
+	Name  string `json:"name,omitempty"`
+	Since string `json:"since,omitempty"`
 }
 
 // Profile representa el perfil de la cuenta
@@ -226,20 +167,6 @@ func (accounts Accounts) Table() {
 
 }
 
-func (a Account) FixedEventsAccount() Account {
-
-	var fixedAccount Account
-	fixedAccount.UID = a.UID
-	var FixedEventsForAccount *Event = &Event{
-		Name: a.Data.Events.Name.RemoveNulls(),
-		When: a.Data.Events.When.RemoveNulls(),
-	}
-	fixedAccount.Data.Events = FixedEventsForAccount
-	fixedAccount.Profile.Email = a.Email
-
-	return fixedAccount
-}
-
 func (a Account) FixedFavoriteTeamsAccount() Account {
 
 	var fixedAccount Account
@@ -249,20 +176,6 @@ func (a Account) FixedFavoriteTeamsAccount() Account {
 	// 	Since: nil,
 	// }
 	// fixedAccount.Data.FavoriteTeam = emptyFavoriteTeam
-	fixedAccount.Profile.Email = a.Email
-
-	return fixedAccount
-}
-
-func (a Account) FixedCompetitionAccount() Account {
-
-	var fixedAccount Account
-	fixedAccount.UID = a.UID
-	var emptyCompetition *NameWhen = &NameWhen{
-		Name: nil,
-		When: nil,
-	}
-	fixedAccount.Data.Competition = emptyCompetition
 	fixedAccount.Profile.Email = a.Email
 
 	return fixedAccount
