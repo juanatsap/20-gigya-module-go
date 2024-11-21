@@ -79,6 +79,50 @@ func (a *AccountsAPI) Search(query string, limit int) (Accounts, error) {
 
 	return response.Results, nil
 }
+func (a *AccountsAPI) SearchGrouped(query string) (GroupedFavoriteTeams, error) {
+
+	// Añadir parámetros
+	method := "accounts.search"
+	params := map[string]string{
+		"query":   query,
+		"apiKey":  a.apiKey,
+		"userKey": a.userKey,
+		"secret":  a.secretKey,
+	}
+	// Preparar la URL de la solicitud
+	baseURL := fmt.Sprintf("https://%s/%s", a.apiDomain, method)
+	data := url.Values{}
+	for key, value := range params {
+		data.Set(key, value)
+	}
+
+	// Enviar la solicitud POST
+	resp, err := http.Post(baseURL, "application/x-www-form-urlencoded", strings.NewReader(data.Encode()))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	// Leer la respuesta
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	// Deserializar la respuesta JSON en SearchResponse
+	var response SearchGroupedResponse
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	// Verificar si hubo un error en la respuesta
+	if response.ErrorCode != 0 {
+		return nil, fmt.Errorf("API error %d: %s", response.ErrorCode, response.StatusReason)
+	}
+
+	return response.Results, nil
+}
 func (a *AccountsAPI) SetAccountInfoLite(account Account) (Account, error) {
 
 	dataAsJSON := account.Data.AsJSON()
@@ -238,6 +282,22 @@ type SearchResponse struct {
 	ObjectsCount int      `json:"objectsCount"`
 	TotalCount   int      `json:"totalCount"`
 }
+type SearchGroupedResponse struct {
+	CallID       string               `json:"callId"`
+	ErrorCode    int                  `json:"errorCode"`
+	APIVersion   int                  `json:"apiVersion"`
+	StatusCode   int                  `json:"statusCode"`
+	StatusReason string               `json:"statusReason"`
+	Time         string               `json:"time"`
+	Results      GroupedFavoriteTeams `json:"results"`
+	ObjectsCount int                  `json:"objectsCount"`
+	TotalCount   int                  `json:"totalCount"`
+}
+type GroupedFavoriteTeam struct {
+	Count int    `json:"count(*)"`
+	Name  string `json:"data.favoriteTeam.name"`
+}
+type GroupedFavoriteTeams []GroupedFavoriteTeam
 type SetAccountInfoResponse struct {
 	CallID       string `json:"callId"`
 	ErrorCode    int    `json:"errorCode"`
