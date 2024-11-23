@@ -295,9 +295,11 @@ type SearchGroupedResponse struct {
 	TotalCount   int                 `json:"totalCount"`
 }
 type GroupedLIVGolfItem struct {
-	Count   int    `json:"count(*)"`
-	Name    string `json:"data.favoriteTeam.name,omitempty"`
-	Visited string `json:"data.visited,omitempty"`
+	Count           int    `json:"count(*)"`
+	Name            string `json:"data.favoriteTeam.name,omitempty"`
+	Visited         string `json:"data.visited,omitempty"`
+	CompetitionName string `json:"data.competition.name,omitempty"`
+	EventsName      string `json:"data.events.name,omitempty"`
 }
 type GroupedVisited struct {
 	Count int    `json:"count(*)"`
