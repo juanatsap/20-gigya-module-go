@@ -116,18 +116,35 @@ type DoubleOptInDetail struct {
 
 // Data representa los datos personalizados de la cuenta
 type Data struct {
+
+	/* ╭──────────────────────────────────────────╮ */
+	/* │                 LIVGOLF                  │ */
+	/* ╰──────────────────────────────────────────╯ */
 	// LIVXMember string `json:"LIVX_Member,omitempty"`
 	// Visited      string     `json:"visited,omitempty"`
 	Competition  *NameWhen  `json:"competition,omitempty"`
 	FavoriteTeam *NameSince `json:"favoriteTeam,omitempty"`
 	// DataSource string `json:"dataSource,omitempty"`
-	Events *Event `json:"events,omitempty"`
+	Events   *Event    `json:"events,omitempty"`
+	RipperGC *RipperGC `json:"rippergc,omitempty"`
 
+	/* ╭──────────────────────────────────────────╮ */
+	/* │                 OLYMPICS                 │ */
+	/* ╰──────────────────────────────────────────╯ */
 	// Add data.utility.isAthlete
 	Utility *Utility `json:"utility,omitempty"`
 }
 type Utility struct {
 	IsAthlete bool `json:"isAthlete,omitempty"`
+}
+
+type RipperGC struct {
+	Trivia *Trivia `json:"trivia,omitempty"`
+}
+
+type Trivia struct {
+	Question string `json:"question,omitempty"`
+	Answer   string `json:"answer,omitempty"`
 }
 
 func (a Data) AsJSON() string {

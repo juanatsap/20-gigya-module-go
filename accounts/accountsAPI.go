@@ -3,6 +3,7 @@ package accounts
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"io/ioutil"
 	"net/http"
@@ -123,7 +124,7 @@ func (a *AccountsAPI) SearchGrouped(query string) (GroupedFavoriteTeams, error) 
 
 	return response.Results, nil
 }
-func (a *AccountsAPI) SetAccountInfoLite(account Account) (Account, error) {
+func (a *AccountsAPI) SetAccountInfoLIV(account Account, isLite bool) (Account, error) {
 
 	dataAsJSON := account.Data.AsJSON()
 	if dataAsJSON == "{\"favoriteTeam\":{}}" {
@@ -140,7 +141,7 @@ func (a *AccountsAPI) SetAccountInfoLite(account Account) (Account, error) {
 		"profile": account.Profile.AsJSON(),
 		"data":    dataAsJSON,
 		// "data":   `{"favoriteTeam":{"name":null,"since":null}}`,
-		"isLite": "true",
+		"isLite": strconv.FormatBool(isLite),
 	}
 
 	// Preparar la URL de la solicitud
