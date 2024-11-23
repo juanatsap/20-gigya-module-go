@@ -80,7 +80,7 @@ func (a *AccountsAPI) Search(query string, limit int) (Accounts, error) {
 
 	return response.Results, nil
 }
-func (a *AccountsAPI) SearchGrouped(query string) (GroupedFavoriteTeams, error) {
+func (a *AccountsAPI) SearchGrouped(query string) (GroupedLIVGolfItems, error) {
 
 	// Añadir parámetros
 	method := "accounts.search"
@@ -284,21 +284,26 @@ type SearchResponse struct {
 	TotalCount   int      `json:"totalCount"`
 }
 type SearchGroupedResponse struct {
-	CallID       string               `json:"callId"`
-	ErrorCode    int                  `json:"errorCode"`
-	APIVersion   int                  `json:"apiVersion"`
-	StatusCode   int                  `json:"statusCode"`
-	StatusReason string               `json:"statusReason"`
-	Time         string               `json:"time"`
-	Results      GroupedFavoriteTeams `json:"results"`
-	ObjectsCount int                  `json:"objectsCount"`
-	TotalCount   int                  `json:"totalCount"`
+	CallID       string              `json:"callId"`
+	ErrorCode    int                 `json:"errorCode"`
+	APIVersion   int                 `json:"apiVersion"`
+	StatusCode   int                 `json:"statusCode"`
+	StatusReason string              `json:"statusReason"`
+	Time         string              `json:"time"`
+	Results      GroupedLIVGolfItems `json:"results"`
+	ObjectsCount int                 `json:"objectsCount"`
+	TotalCount   int                 `json:"totalCount"`
 }
-type GroupedFavoriteTeam struct {
+type GroupedLIVGolfItem struct {
+	Count   int    `json:"count(*)"`
+	Name    string `json:"data.favoriteTeam.name,omitempty"`
+	Visited string `json:"data.visited,omitempty"`
+}
+type GroupedVisited struct {
 	Count int    `json:"count(*)"`
-	Name  string `json:"data.favoriteTeam.name"`
+	Name  string `json:"data.visited"`
 }
-type GroupedFavoriteTeams []GroupedFavoriteTeam
+type GroupedLIVGolfItems []GroupedLIVGolfItem
 type SetAccountInfoResponse struct {
 	CallID       string `json:"callId"`
 	ErrorCode    int    `json:"errorCode"`

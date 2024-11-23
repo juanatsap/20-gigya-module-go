@@ -137,11 +137,9 @@ type Data struct {
 type Utility struct {
 	IsAthlete bool `json:"isAthlete,omitempty"`
 }
-
 type RipperGC struct {
 	Trivia *Trivia `json:"trivia,omitempty"`
 }
-
 type Trivia struct {
 	Question string `json:"question,omitempty"`
 	Answer   string `json:"answer,omitempty"`
