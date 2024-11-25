@@ -3,7 +3,6 @@ package accounts
 import (
 	"encoding/json"
 	"fmt"
-	"gigya-module-go/helpers"
 )
 
 // Account representa una cuenta individual en Gigya
@@ -121,7 +120,7 @@ type Data struct {
 	/* │                 LIVGOLF                  │ */
 	/* ╰──────────────────────────────────────────╯ */
 	// LIVXMember string `json:"LIVX_Member,omitempty"`
-	// Visited      string     `json:"visited,omitempty"`
+	Visited      string     `json:"visited,omitempty"`
 	Competition  *NameWhen  `json:"competition,omitempty"`
 	FavoriteTeam *NameSince `json:"favoriteTeam,omitempty"`
 	// DataSource string `json:"dataSource,omitempty"`
@@ -152,8 +151,8 @@ func (a Data) AsJSON() string {
 
 // NameWhen representa una estructura con nombre y fecha
 type NameWhen struct {
-	Name string                     `json:"name,omitempty"`
-	When helpers.DynamicStringArray `json:"when,omitempty"`
+	Name string `json:"name,omitempty"`
+	When string `json:"when,omitempty"`
 }
 type Event NameWhen
 

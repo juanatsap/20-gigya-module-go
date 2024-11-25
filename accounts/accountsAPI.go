@@ -27,7 +27,7 @@ func NewAccountsAPI(apiKey, userKey, secretKey, apiDomain string) *AccountsAPI {
 		apiDomain: apiDomain,
 	}
 }
-func (a *AccountsAPI) Search(query string, limit int) (Accounts, error) {
+func (a *AccountsAPI) Search(query string, limit int) (Accounts, int, error) {
 
 	if limit < 1 {
 		limit = 1
@@ -52,35 +52,37 @@ func (a *AccountsAPI) Search(query string, limit int) (Accounts, error) {
 	for key, value := range params {
 		data.Set(key, value)
 	}
+	total := 0
 
 	// Enviar la solicitud POST
 	resp, err := http.Post(baseURL, "application/x-www-form-urlencoded", strings.NewReader(data.Encode()))
 	if err != nil {
-		return nil, err
+		return nil, total, err
 	}
 	defer resp.Body.Close()
 
 	// Leer la respuesta
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, total, err
 	}
 
 	// Deserializar la respuesta JSON en SearchResponse
 	var response SearchResponse
 	err = json.Unmarshal(body, &response)
 	if err != nil {
-		return nil, err
+		return nil, total, err
 	}
 
 	// Verificar si hubo un error en la respuesta
 	if response.ErrorCode != 0 {
-		return nil, fmt.Errorf("API error %d: %s", response.ErrorCode, response.StatusReason)
+		total = response.TotalCount
+		return nil, total, fmt.Errorf("API error %d: %s", response.ErrorCode, response.StatusReason)
 	}
 
-	return response.Results, nil
+	return response.Results, total, nil
 }
-func (a *AccountsAPI) SearchGrouped(query string) (GroupedLIVGolfItems, error) {
+func (a *AccountsAPI) SearchGrouped(query string) (GroupedLIVGolfItems, int, error) {
 
 	// Añadir parámetros
 	method := "accounts.search"
@@ -96,39 +98,41 @@ func (a *AccountsAPI) SearchGrouped(query string) (GroupedLIVGolfItems, error) {
 	for key, value := range params {
 		data.Set(key, value)
 	}
+	total := 0
 
 	// Enviar la solicitud POST
 	resp, err := http.Post(baseURL, "application/x-www-form-urlencoded", strings.NewReader(data.Encode()))
 	if err != nil {
-		return nil, err
+		return nil, total, err
 	}
 	defer resp.Body.Close()
 
 	// Leer la respuesta
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, total, err
 	}
 
 	// Deserializar la respuesta JSON en SearchResponse
 	var response SearchGroupedResponse
 	err = json.Unmarshal(body, &response)
 	if err != nil {
-		return nil, err
+		return nil, total, err
 	}
 
 	// Verificar si hubo un error en la respuesta
 	if response.ErrorCode != 0 {
-		return nil, fmt.Errorf("API error %d: %s", response.ErrorCode, response.StatusReason)
+		return nil, total, fmt.Errorf("API error %d: %s", response.ErrorCode, response.StatusReason)
 	}
+	total = response.TotalCount
 
-	return response.Results, nil
+	return response.Results, total, nil
 }
 func (a *AccountsAPI) SetAccountInfoLIV(account Account, isLite bool) (Account, error) {
 
 	dataAsJSON := account.Data.AsJSON()
-	if dataAsJSON == "{\"favoriteTeam\":{}}" {
-		dataAsJSON = `{"favoriteTeam":{"name":null,"since":null}}`
+	if dataAsJSON == "{\"competition\":{},\"favoriteTeam\":{}}" {
+		dataAsJSON = `{"competition":{"name":null,"when":null},"favoriteTeam":{}}`
 	}
 
 	// Añadir parámetros
@@ -305,7 +309,6 @@ type GroupedVisited struct {
 	Count int    `json:"count(*)"`
 	Name  string `json:"data.visited"`
 }
-type GroupedLIVGolfItems []GroupedLIVGolfItem
 type SetAccountInfoResponse struct {
 	CallID       string `json:"callId"`
 	ErrorCode    int    `json:"errorCode"`
@@ -327,3 +330,4 @@ type GetAccountInfoResponse struct {
 	Data         Data        `json:"data"`
 	Preferences  Preferences `json:"preferences"`
 }
+type GroupedLIVGolfItems []GroupedLIVGolfItem
