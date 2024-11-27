@@ -82,106 +82,6 @@ func (a *AccountsAPI) Search(query string, limit int) (Accounts, int, error) {
 
 	return response.Results, total, nil
 }
-func (a *AccountsAPI) SearchGrouped(query string) (GroupedLIVGolfItems, int, error) {
-
-	// Añadir parámetros
-	method := "accounts.search"
-	params := map[string]string{
-		"query":   query,
-		"apiKey":  a.apiKey,
-		"userKey": a.userKey,
-		"secret":  a.secretKey,
-	}
-	// Preparar la URL de la solicitud
-	baseURL := fmt.Sprintf("https://%s/%s", a.apiDomain, method)
-	data := url.Values{}
-	for key, value := range params {
-		data.Set(key, value)
-	}
-	total := 0
-
-	// Enviar la solicitud POST
-	resp, err := http.Post(baseURL, "application/x-www-form-urlencoded", strings.NewReader(data.Encode()))
-	if err != nil {
-		return nil, total, err
-	}
-	defer resp.Body.Close()
-
-	// Leer la respuesta
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, total, err
-	}
-
-	// Deserializar la respuesta JSON en SearchResponse
-	var response SearchGroupedResponse
-	err = json.Unmarshal(body, &response)
-	if err != nil {
-		return nil, total, err
-	}
-
-	// Verificar si hubo un error en la respuesta
-	if response.ErrorCode != 0 {
-		return nil, total, fmt.Errorf("API error %d: %s", response.ErrorCode, response.StatusReason)
-	}
-	total = response.TotalCount
-
-	return response.Results, total, nil
-}
-func (a *AccountsAPI) SetAccountInfoLIV(account Account, isLite bool) (Account, error) {
-
-	dataAsJSON := account.Data.AsJSON()
-	if dataAsJSON == "{\"competition\":{},\"favoriteTeam\":{}}" {
-		dataAsJSON = `{"competition":{"name":null,"when":null},"favoriteTeam":{}}`
-	}
-
-	// Añadir parámetros
-	method := "accounts.setAccountInfo"
-	params := map[string]string{
-		"UID":     account.UID,
-		"apiKey":  a.apiKey,
-		"userKey": a.userKey,
-		"secret":  a.secretKey,
-		"profile": account.Profile.AsJSON(),
-		"data":    dataAsJSON,
-		// "data":   `{"favoriteTeam":{"name":null,"since":null}}`,
-		"isLite": strconv.FormatBool(isLite),
-	}
-
-	// Preparar la URL de la solicitud
-	baseURL := fmt.Sprintf("https://%s/%s", a.apiDomain, method)
-	data := url.Values{}
-	for key, value := range params {
-		data.Set(key, value)
-	}
-
-	// Enviar la solicitud POST
-	resp, err := http.Post(baseURL, "application/x-www-form-urlencoded", strings.NewReader(data.Encode()))
-	if err != nil {
-		return Account{}, err
-	}
-	defer resp.Body.Close()
-
-	// Leer la respuesta
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return Account{}, err
-	}
-
-	// Deserializar la respuesta JSON en SearchResponse
-	var response SetAccountInfoResponse
-	err = json.Unmarshal(body, &response)
-	if err != nil {
-		return Account{}, err
-	}
-
-	// Verificar si hubo un error en la respuesta
-	if response.ErrorCode != 0 {
-		return Account{}, fmt.Errorf("API error %d: %s", response.ErrorCode, response.StatusReason)
-	}
-
-	return Account{UID: response.UID}, nil
-}
 func (a *AccountsAPI) SetAccountInfo(account Account) (Account, error) {
 
 	// Añadir parámetros
@@ -274,6 +174,60 @@ func (a *AccountsAPI) GetAccountInfo(UID string) (Account, error) {
 
 	return Account{UID: response.UID}, nil
 }
+func (a *AccountsAPI) ImportFullAccount(account Account) (Account, error) {
+
+	// Añadir parámetros
+	method := "accounts.importFullAccount"
+	params := map[string]string{
+		"apiKey":  a.apiKey,
+		"userKey": a.userKey,
+		"secret":  a.secretKey,
+	}
+
+	// Preparar la URL de la solicitud
+	baseURL := fmt.Sprintf("https://%s/%s", a.apiDomain, method)
+	data := url.Values{}
+	for key, value := range params {
+		data.Set(key, value)
+	}
+
+	// Enviar la solicitud POST
+	resp, err := http.Post(baseURL, "application/x-www-form-urlencoded", strings.NewReader(data.Encode()))
+	if err != nil {
+		return Account{}, err
+	}
+	defer resp.Body.Close()
+
+	// Leer la respuesta
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return Account{}, err
+	}
+
+	// Deserializar la respuesta JSON en SearchResponse
+	var response ImportFullAccountResponse
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return Account{}, err
+	}
+
+	// Verificar si hubo un error en la respuesta
+	if response.ErrorCode != 0 {
+		return Account{}, fmt.Errorf("API error %d: %s", response.ErrorCode, response.StatusReason)
+	}
+
+	return Account{UID: response.UID}, nil
+}
+
+type ImportFullAccountResponse struct {
+	CallID       string `json:"callId"`
+	ErrorCode    int    `json:"errorCode"`
+	APIVersion   int    `json:"apiVersion"`
+	StatusCode   int    `json:"statusCode"`
+	StatusReason string `json:"statusReason"`
+	Time         string `json:"time"`
+	UID          string `json:"UID"`
+}
 
 // SearchResponse representa la respuesta completa de accounts.search
 type SearchResponse struct {
@@ -331,3 +285,104 @@ type GetAccountInfoResponse struct {
 	Preferences  Preferences `json:"preferences"`
 }
 type GroupedLIVGolfItems []GroupedLIVGolfItem
+
+func (a *AccountsAPI) SetAccountInfoLIV(account Account, isLite bool) (Account, error) {
+
+	dataAsJSON := account.Data.AsJSON()
+	if dataAsJSON == "{\"competition\":{},\"favoriteTeam\":{}}" {
+		dataAsJSON = `{"competition":{"name":null,"when":null},"favoriteTeam":{}}`
+	}
+
+	// Añadir parámetros
+	method := "accounts.setAccountInfo"
+	params := map[string]string{
+		"UID":     account.UID,
+		"apiKey":  a.apiKey,
+		"userKey": a.userKey,
+		"secret":  a.secretKey,
+		"profile": account.Profile.AsJSON(),
+		"data":    dataAsJSON,
+		// "data":   `{"favoriteTeam":{"name":null,"since":null}}`,
+		"isLite": strconv.FormatBool(isLite),
+	}
+
+	// Preparar la URL de la solicitud
+	baseURL := fmt.Sprintf("https://%s/%s", a.apiDomain, method)
+	data := url.Values{}
+	for key, value := range params {
+		data.Set(key, value)
+	}
+
+	// Enviar la solicitud POST
+	resp, err := http.Post(baseURL, "application/x-www-form-urlencoded", strings.NewReader(data.Encode()))
+	if err != nil {
+		return Account{}, err
+	}
+	defer resp.Body.Close()
+
+	// Leer la respuesta
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return Account{}, err
+	}
+
+	// Deserializar la respuesta JSON en SearchResponse
+	var response SetAccountInfoResponse
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return Account{}, err
+	}
+
+	// Verificar si hubo un error en la respuesta
+	if response.ErrorCode != 0 {
+		return Account{}, fmt.Errorf("API error %d: %s", response.ErrorCode, response.StatusReason)
+	}
+
+	return Account{UID: response.UID}, nil
+}
+func (a *AccountsAPI) SearchGrouped(query string) (GroupedLIVGolfItems, int, error) {
+
+	// Añadir parámetros
+	method := "accounts.search"
+	params := map[string]string{
+		"query":   query,
+		"apiKey":  a.apiKey,
+		"userKey": a.userKey,
+		"secret":  a.secretKey,
+	}
+	// Preparar la URL de la solicitud
+	baseURL := fmt.Sprintf("https://%s/%s", a.apiDomain, method)
+	data := url.Values{}
+	for key, value := range params {
+		data.Set(key, value)
+	}
+	total := 0
+
+	// Enviar la solicitud POST
+	resp, err := http.Post(baseURL, "application/x-www-form-urlencoded", strings.NewReader(data.Encode()))
+	if err != nil {
+		return nil, total, err
+	}
+	defer resp.Body.Close()
+
+	// Leer la respuesta
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, total, err
+	}
+
+	// Deserializar la respuesta JSON en SearchResponse
+	var response SearchGroupedResponse
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return nil, total, err
+	}
+
+	// Verificar si hubo un error en la respuesta
+	if response.ErrorCode != 0 {
+		return nil, total, fmt.Errorf("API error %d: %s", response.ErrorCode, response.StatusReason)
+	}
+	total = response.TotalCount
+
+	return response.Results, total, nil
+}

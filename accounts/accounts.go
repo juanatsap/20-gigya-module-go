@@ -7,20 +7,17 @@ import (
 
 // Account representa una cuenta individual en Gigya
 type Account struct {
-	LastUpdatedTimestamp int64                   `json:"lastUpdatedTimestamp"`
+	UID                  string                  `json:"UID"`
+	Profile              Profile                 `json:"profile"`
+	Data                 Data                    `json:"data"`
 	Preferences          Preferences             `json:"preferences"`
 	Subscriptions        map[string]Subscription `json:"subscriptions"`
-	Data                 Data                    `json:"data"`
 	Created              string                  `json:"created"`
 	CreatedTimestamp     int64                   `json:"createdTimestamp"`
-	Profile              Profile                 `json:"profile"`
-	Channel              string                  `json:"channel"`
-	Token                string                  `json:"token"`
 	LastUpdated          string                  `json:"lastUpdated"`
-	UID                  string                  `json:"UID"`
+	LastUpdatedTimestamp int64                   `json:"lastUpdatedTimestamp"`
 	HasLiteAccount       bool                    `json:"hasLiteAccount"`
 	HasFullAccount       bool                    `json:"hasFullAccount"`
-	Email                string                  `json:"email"`
 }
 
 func (a Account) Print() {
@@ -28,13 +25,6 @@ func (a Account) Print() {
 	fmt.Println("System:")
 	fmt.Println("--------------------")
 	fmt.Printf("Account UID: %s\n", a.UID)
-	fmt.Printf("Created: %s\n", a.Created)
-	fmt.Printf("Last Updated: %s\n", a.LastUpdated)
-	fmt.Printf("UID: %s\n", a.UID)
-	fmt.Printf("Has Lite Account: %t\n", a.HasLiteAccount)
-	fmt.Printf("Has Full Account: %t\n", a.HasFullAccount)
-	fmt.Printf("Last Updated Timestamp: %d\n", a.LastUpdatedTimestamp)
-	fmt.Printf("Created Timestamp: %d\n", a.CreatedTimestamp)
 	fmt.Println("")
 	fmt.Println("--------------------")
 	fmt.Println("Profile:")
@@ -67,6 +57,14 @@ func (a Account) Print() {
 	for channel, subscription := range a.Subscriptions {
 		fmt.Printf("  %s: %v\n", channel, subscription)
 	}
+
+	fmt.Printf("Created: %s\n", a.Created)
+	fmt.Printf("Last Updated: %s\n", a.LastUpdated)
+	fmt.Printf("Has Lite Account: %t\n", a.HasLiteAccount)
+	fmt.Printf("Has Full Account: %t\n", a.HasFullAccount)
+	fmt.Printf("Last Updated Timestamp: %d\n", a.LastUpdatedTimestamp)
+	fmt.Printf("Created Timestamp: %d\n", a.CreatedTimestamp)
+
 }
 
 // Preferences representa las preferencias de la cuenta
@@ -166,8 +164,11 @@ type NameSince struct {
 type Profile struct {
 	FirstName string `json:"firstName,omitempty"`
 	LastName  string `json:"lastName,omitempty"`
-	Country   string `json:"country,omitempty"`
 	Email     string `json:"email,omitempty"`
+	Country   string `json:"country,omitempty"`
+	ZipCode   string `json:"zipCode,omitempty"`
+	City      string `json:"city,omitempty"`
+	State     string `json:"state,omitempty"`
 }
 
 func (a Profile) AsJSON() string {
@@ -179,18 +180,4 @@ type Accounts []Account
 
 func (accounts Accounts) Table() {
 
-}
-
-func (a Account) FixedFavoriteTeamsAccount() Account {
-
-	var fixedAccount Account
-	fixedAccount.UID = a.UID
-	// var emptyFavoriteTeam *NameSince = &NameSince{
-	// 	Name:  nil,
-	// 	Since: nil,
-	// }
-	// fixedAccount.Data.FavoriteTeam = emptyFavoriteTeam
-	fixedAccount.Profile.Email = a.Email
-
-	return fixedAccount
 }
