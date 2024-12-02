@@ -24,6 +24,18 @@ type Account struct {
 	IsRegistered         bool                    `json:"isRegistered,omitempty"`
 	Password             Password                `json:"password,omitempty"`
 }
+type Accounts []Account
+
+// Profile representa el perfil de la cuenta
+type Profile struct {
+	FirstName string `json:"firstName,omitempty"`
+	LastName  string `json:"lastName,omitempty"`
+	Email     string `json:"email,omitempty"`
+	Country   string `json:"country,omitempty"`
+	Zip       string `json:"zip,omitempty"`
+	City      string `json:"city,omitempty"`
+	State     string `json:"state,omitempty"`
+}
 type Password struct {
 	Created        string       `json:"created,omitempty"`
 	HashedPassword string       `json:"hashedPassword,omitempty"`
@@ -38,7 +50,6 @@ type Emails struct {
 	Verified   []string `json:"verified,omitempty"`
 	Unverified []string `json:"unverified,omitempty"`
 }
-
 type LoginIDs struct {
 	Emails []string `json:"emails,omitempty"`
 }
@@ -84,7 +95,6 @@ func (a Account) Print() {
 	fmt.Printf("Last Updated Timestamp: %d\n", a.LastUpdatedTimestamp)
 	fmt.Printf("Created Timestamp: %d\n", a.CreatedTimestamp)
 }
-
 func (a Account) PrintShort() {
 	fmt.Println("--------------------")
 	fmt.Println("Profile:")
@@ -101,123 +111,6 @@ func (a Account) PrintShort() {
 	fmt.Printf("  IdxImportID: %s\n", a.Data.IdxImportId)
 	fmt.Println("---------------------------------------------------")
 }
-
-// Preferences representa las preferencias de la cuenta
-type Preferences struct {
-	Marketing Marketing `json:"marketing,omitempty"`
-	Terms     ToS       `json:"terms,omitempty"`
-	Privacy   Livgolf   `json:"privacy,omitempty"`
-}
-
-// Livgolf representa las preferencias de la cuenta
-type Livgolf struct {
-	Livgolf ConsentDetail `json:"livgolf,omitempty"`
-}
-type ToS struct {
-	ToS ConsentDetail `json:"ToS,omitempty"`
-}
-type Marketing struct {
-	Email ConsentDetail `json:"email,omitempty"`
-}
-
-// ConsentDetail representa los detalles de consentimiento
-type ConsentDetail struct {
-	Entitlements        []string                `json:"entitlements,omitempty"`
-	Locales             map[string]LocaleDetail `json:"locales,omitempty"`
-	IsConsentGranted    bool                    `json:"isConsentGranted,omitempty"`
-	ActionTimestamp     string                  `json:"actionTimestamp,omitempty"`
-	CustomData          []string                `json:"customData,omitempty"`
-	Language            string                  `json:"language,omitempty"`
-	LastConsentModified string                  `json:"lastConsentModified,omitempty"`
-	DocVersion          float64                 `json:"docVersion,omitempty"`
-	DocDate             string                  `json:"docDate,omitempty"`
-	Tags                []string                `json:"tags,omitempty"`
-}
-
-// LocaleDetail representa los detalles específicos de una localidad
-type LocaleDetail struct {
-	DocVersion float64 `json:"docVersion,omitempty"`
-	DocDate    string  `json:"docDate,omitempty"`
-}
-
-// Subscription representa las suscripciones de la cuenta
-type Subscription struct {
-	Email SubscriptionChannel `json:"email,omitempty"`
-}
-
-// SubscriptionChannel representa los detalles de una suscripción por canal
-type SubscriptionChannel struct {
-	IsSubscribed                 bool              `json:"isSubscribed,omitempty"`
-	LastUpdatedSubscriptionState string            `json:"lastUpdatedSubscriptionState,omitempty"`
-	DoubleOptIn                  DoubleOptInDetail `json:"doubleOptIn,omitempty"`
-}
-
-// DoubleOptInDetail representa los detalles de doble opt-in
-type DoubleOptInDetail struct {
-	Status string `json:"status,omitempty"`
-}
-
-// Data representa los datos personalizados de la cuenta
-type Data struct {
-	IdxImportId string `json:"idxImportId,omitempty"`
-
-	/* ╭──────────────────────────────────────────╮ */
-	/* │                 LIVGOLF                  │ */
-	/* ╰──────────────────────────────────────────╯ */
-	// LIVXMember string `json:"LIVX_Member,omitempty"`
-	Visited      string     `json:"visited,omitempty"`
-	Competition  *NameWhen  `json:"competition,omitempty"`
-	FavoriteTeam *NameSince `json:"favoriteTeam,omitempty"`
-	// DataSource string `json:"dataSource,omitempty"`
-	Events   *Event    `json:"events,omitempty"`
-	RipperGC *RipperGC `json:"rippergc,omitempty"`
-
-	/* ╭──────────────────────────────────────────╮ */
-	/* │                 OLYMPICS                 │ */
-	/* ╰──────────────────────────────────────────╯ */
-	// Add data.utility.isAthlete
-	Utility *Utility `json:"utility,omitempty"`
-}
-type Utility struct {
-	IsAthlete bool `json:"isAthlete,omitempty"`
-}
-type RipperGC struct {
-	Trivia *Trivia `json:"trivia,omitempty"`
-}
-type Trivia struct {
-	Question string `json:"question,omitempty"`
-	Answer   string `json:"answer,omitempty"`
-}
-
-func (a Data) AsJSON() string {
-	data, _ := json.Marshal(a)
-	return string(data)
-}
-
-// NameWhen representa una estructura con nombre y fecha
-type NameWhen struct {
-	Name string `json:"name,omitempty"`
-	When string `json:"when,omitempty"`
-}
-type Event NameWhen
-
-// NameSince representa una estructura que puede ser un string, un array o un objeto vacío
-type NameSince struct {
-	Name  string `json:"name,omitempty"`
-	Since string `json:"since,omitempty"`
-}
-
-// Profile representa el perfil de la cuenta
-type Profile struct {
-	FirstName string `json:"firstName,omitempty"`
-	LastName  string `json:"lastName,omitempty"`
-	Email     string `json:"email,omitempty"`
-	Country   string `json:"country,omitempty"`
-	Zip       string `json:"zip,omitempty"`
-	City      string `json:"city,omitempty"`
-	State     string `json:"state,omitempty"`
-}
-
 func (a Account) AsJSON() string {
 	data, _ := json.Marshal(a)
 	return string(data)
@@ -226,9 +119,5 @@ func (a Profile) AsJSON() string {
 	data, _ := json.Marshal(a)
 	return string(data)
 }
-
-type Accounts []Account
-
 func (accounts Accounts) Table() {
-
 }
