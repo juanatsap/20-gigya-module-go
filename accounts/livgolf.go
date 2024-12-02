@@ -71,13 +71,16 @@ type Preferences struct {
 
 // Livgolf representa las preferencias de la cuenta
 type Livgolf struct {
-	Livgolf ConsentDetail `json:"livgolf,omitempty"`
+	Livgolf      ConsentDetail `json:"livgolf,omitempty"`
+	Majesticks   ConsentDetail `json:"majesticks,omitempty"`
+	SportsBreaks ConsentDetail `json:"sportsBreaks,omitempty"`
 }
 type ToS struct {
 	ToS ConsentDetail `json:"ToS,omitempty"`
 }
 type Marketing struct {
-	Email ConsentDetail `json:"email,omitempty"`
+	Email        ConsentDetail `json:"email,omitempty"`
+	SportsBreaks ConsentDetail `json:"sportsBreaks,omitempty"`
 }
 
 // ConsentDetail representa los detalles de consentimiento
