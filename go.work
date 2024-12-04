@@ -1,0 +1,6 @@
+go 1.23.2
+
+use (
+    ./
+    ../23-txeo-tools-library
+)

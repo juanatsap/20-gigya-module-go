@@ -1,0 +1,24 @@
+{
+	"folders": [
+		{
+			"name": "22-txeo-gui-library",
+			"path": "../../22-txeo-gui-library"
+		},
+		{
+			"name": "23-txeo-tools-library",
+			"path": "../../23-txeo-tools-library"
+		},
+		{
+			"name": "27-livgolf-module-go",
+			"path": "../../27-livgolf-module-go"
+		},
+		{
+			"name": "26-livgolf-fyne",
+			"path": "../../26-livgolf-fyne"
+		},
+		{
+			"path": ".."
+		}
+	],
+    "settings": {}
+}

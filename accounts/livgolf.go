@@ -1,6 +1,8 @@
 package accounts
 
 import (
+	"bytes"
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -122,6 +124,22 @@ type DoubleOptInDetail struct {
 
 type GroupedLIVGolfItems []GroupedLIVGolfItem
 
+func (a GroupedLIVGolfItems) ToCSV() string {
+
+	var b bytes.Buffer
+	w := csv.NewWriter(&b)
+	w.Write([]string{"Count", "Name"})
+	for _, item := range a {
+
+		var row []string
+		row = append(row, strconv.Itoa(item.Count))
+		row = append(row, item.Name)
+		w.Write(row)
+	}
+
+	w.Flush()
+	return b.String()
+}
 func (a *AccountsAPI) SetAccountInfoLIV(account Account, isLite bool) (Account, error) {
 
 	dataAsJSON := account.Data.AsJSON()
@@ -244,4 +262,38 @@ type GroupedLIVGolfItem struct {
 type GroupedVisited struct {
 	Count int    `json:"count(*)"`
 	Name  string `json:"data.visited"`
+}
+
+/* ╭──────────────────────────────────────────╮ */
+/* │               ARRAYS SHIT                │ */
+/* ╰──────────────────────────────────────────╯ */
+type AccountWithArrays struct {
+	UID     string         `json:"UID,omitempty"`
+	Profile Profile        `json:"profile,omitempty"`
+	Data    DataWithArrays `json:"data,omitempty"`
+}
+type DataWithArrays struct {
+	Events EventsWithArrays `json:"events,omitempty"`
+}
+type EventsWithArrays struct {
+	Name []string `json:"name,omitempty"`
+	When []string `json:"when,omitempty"`
+}
+
+func (account AccountWithArrays) GetGigyaAccount() Account {
+
+	eventsAsArray := account.Data.Events
+
+	eventsNameAsString := strings.Join(eventsAsArray.Name, ", ")
+	eventsWhenAsString := strings.Join(eventsAsArray.When, ", ")
+	return Account{
+		UID:     account.UID,
+		Profile: account.Profile,
+		Data: Data{
+			Events: &Event{
+				Name: eventsNameAsString,
+				When: eventsWhenAsString,
+			},
+		},
+	}
 }

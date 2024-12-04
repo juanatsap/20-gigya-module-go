@@ -111,6 +111,11 @@ func (a Account) PrintShort() {
 	fmt.Printf("  IdxImportID: %s\n", a.Data.IdxImportId)
 	fmt.Println("---------------------------------------------------")
 }
+func (a Account) PrintLine(index int) {
+	// Only in one line
+	fmt.Printf("%d. UID: %s, Email: %s\n", index, a.UID, a.Profile.Email)
+
+}
 func (a Account) AsJSON() string {
 	data, _ := json.Marshal(a)
 	return string(data)

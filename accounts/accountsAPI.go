@@ -158,7 +158,7 @@ func (a *AccountsAPI) GetAccountInfo(UID string) (Account, error) {
 
 	return account, nil
 }
-func (a *AccountsAPI) SetAccountInfo(account Account) (Account, error) {
+func (a *AccountsAPI) SetAccountInfo(account Account, isLite bool) (Account, error) {
 
 	// Añadir parámetros
 	method := "accounts.setAccountInfo"
@@ -169,6 +169,11 @@ func (a *AccountsAPI) SetAccountInfo(account Account) (Account, error) {
 		"secret":  a.secretKey,
 		"profile": account.Profile.AsJSON(),
 		"data":    account.Data.AsJSON(),
+	}
+
+	// Add isLite: true if isLite is true
+	if isLite {
+		params["isLite"] = "true"
 	}
 
 	// Preparar la URL de la solicitud
