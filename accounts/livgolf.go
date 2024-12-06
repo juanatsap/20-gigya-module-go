@@ -32,7 +32,12 @@ type Data struct {
 	/* │                 OLYMPICS                 │ */
 	/* ╰──────────────────────────────────────────╯ */
 	// Add data.utility.isAthlete
-	Utility *Utility `json:"utility,omitempty"`
+	Utility         *Utility         `json:"utility,omitempty"`
+	Personalization *Personalization `json:"personalization,omitempty"`
+}
+type Personalization struct {
+	SiteLanguageP24 string `json:"siteLanguageP24,omitempty"`
+	SiteLanguage    string `json:"siteLanguage,omitempty"`
 }
 type Utility struct {
 	IsAthlete bool `json:"isAthlete,omitempty"`
@@ -273,19 +278,26 @@ type AccountWithArrays struct {
 	Data    DataWithArrays `json:"data,omitempty"`
 }
 type DataWithArrays struct {
-	Events EventsWithArrays `json:"events,omitempty"`
+	Events  EventsWithArrays `json:"events,omitempty"`
+	Visited []string         `json:"visited,omitempty"`
 }
 type EventsWithArrays struct {
 	Name []string `json:"name,omitempty"`
 	When []string `json:"when,omitempty"`
 }
+type VisitedWithArrays struct {
+	Name []string `json:"name,omitempty"`
+}
 
 func (account AccountWithArrays) GetGigyaAccount() Account {
 
 	eventsAsArray := account.Data.Events
+	visitedAsArray := account.Data.Visited
 
 	eventsNameAsString := strings.Join(eventsAsArray.Name, ", ")
 	eventsWhenAsString := strings.Join(eventsAsArray.When, ", ")
+
+	visitedAsString := strings.Join(visitedAsArray, ", ")
 	return Account{
 		UID:     account.UID,
 		Profile: account.Profile,
@@ -294,6 +306,7 @@ func (account AccountWithArrays) GetGigyaAccount() Account {
 				Name: eventsNameAsString,
 				When: eventsWhenAsString,
 			},
+			Visited: visitedAsString,
 		},
 	}
 }

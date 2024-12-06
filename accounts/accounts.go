@@ -3,6 +3,8 @@ package accounts
 import (
 	"encoding/json"
 	"fmt"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // Account representa una cuenta individual en Gigya
@@ -116,6 +118,52 @@ func (a Account) PrintLine(index int) {
 	fmt.Printf("%d. UID: %s, Email: %s\n", index, a.UID, a.Profile.Email)
 
 }
+func (a Account) PrintLineWith(index int, field string) {
+
+	switch field {
+	case "uid":
+		fmt.Printf("%d. UID: %s\n", index, a.UID)
+	case "email":
+		fmt.Printf("%d. Email: %s\n", index, a.Profile.Email)
+	case "competition":
+		fmt.Printf("%d. Competition Name: %s\n", index, a.Data.Competition.Name)
+		fmt.Printf("%d. Competition When: %s\n", index, a.Data.Competition.When)
+	case "favoriteTeam":
+		fmt.Printf("%d. Favorite Team Name: %s\n", index, a.Data.FavoriteTeam.Name)
+		fmt.Printf("%d. Favorite Team Since: %s\n", index, a.Data.FavoriteTeam.Since)
+	case "visited":
+		fmt.Printf("%d. Visited: %s\n", index, a.Data.Visited)
+	case "events":
+		fmt.Printf("%d. Events Name: %s\n", index, a.Data.Events.Name)
+		fmt.Printf("%d. Events When: %s\n", index, a.Data.Events.When)
+	default:
+		fmt.Printf("%d. %s: %s\n", index, field, a.Profile.Email)
+	}
+}
+func (a Account) PrintLineWithText(title string, index int, field string) {
+
+	log.Debugf("%s - UID: %s, Email: %s\n", title, a.UID, a.Profile.Email)
+	switch field {
+	case "uid":
+		fmt.Printf("%d. UID: %s\n", index, a.UID)
+	case "email":
+		fmt.Printf("%d. Email: %s\n", index, a.Profile.Email)
+	case "competition":
+		fmt.Printf("%d. Competition Name: %s\n", index, a.Data.Competition.Name)
+		fmt.Printf("%d. Competition When: %s\n", index, a.Data.Competition.When)
+	case "favoriteTeam":
+		fmt.Printf("%d. Favorite Team Name: %s\n", index, a.Data.FavoriteTeam.Name)
+		fmt.Printf("%d. Favorite Team Since: %s\n", index, a.Data.FavoriteTeam.Since)
+	case "visited":
+		fmt.Printf("%d. Visited: %s\n", index, a.Data.Visited)
+	case "events":
+		fmt.Printf("%d. Events Name: %s\n", index, a.Data.Events.Name)
+		fmt.Printf("%d. Events When: %s\n", index, a.Data.Events.When)
+	default:
+		fmt.Printf("%d. %s: %s\n", index, field, a.Profile.Email)
+	}
+}
+
 func (a Account) AsJSON() string {
 	data, _ := json.Marshal(a)
 	return string(data)
@@ -125,4 +173,30 @@ func (a Profile) AsJSON() string {
 	return string(data)
 }
 func (accounts Accounts) Table() {
+}
+func (a *Account) FixCompetition() {
+
+	if a.Data.Competition != nil {
+
+		if a.Data.Competition.Name == "" {
+			a.Data.Competition.Name = ""
+			a.Data.Competition.When = ""
+		}
+	}
+}
+func (a *Account) FixFavoriteTeam() {
+
+	if a.Data.FavoriteTeam != nil {
+
+		if a.Data.FavoriteTeam.Name == "" {
+			a.Data.FavoriteTeam.Name = ""
+			a.Data.FavoriteTeam.Since = ""
+		}
+	}
+}
+
+func (a *Account) FixVisited() {
+	if a.Data.Visited == "" {
+		a.Data.Visited = ""
+	}
 }

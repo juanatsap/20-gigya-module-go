@@ -176,6 +176,20 @@ func (a *AccountsAPI) SetAccountInfo(account Account, isLite bool) (Account, err
 		params["isLite"] = "true"
 	}
 
+	if account.Data.FavoriteTeam != nil {
+		// Check if both favoriteTeam name and favoriteTeam since are empty. if yes, set this fixed data section: {data: {favoriteTeam: null}}
+		if account.Data.FavoriteTeam.Name == "" && account.Data.FavoriteTeam.Since == "" {
+			params["data"] = `{"favoriteTeam":null}`
+		}
+	}
+
+	if account.Data.Competition != nil {
+		// Check if both competition name and competition when are empty. if yes, set this fixed data section: {data: {competition: null}}
+		if account.Data.Competition.Name == "" && account.Data.Competition.When == "" {
+			params["data"] = `{"competition":null}`
+		}
+	}
+
 	// Preparar la URL de la solicitud
 	baseURL := fmt.Sprintf("https://%s/%s", a.apiDomain, method)
 	data := url.Values{}
