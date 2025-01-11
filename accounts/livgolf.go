@@ -263,6 +263,7 @@ type GroupedLIVGolfItem struct {
 	Visited         string `json:"data.visited,omitempty"`
 	CompetitionName string `json:"data.competition.name,omitempty"`
 	EventsName      string `json:"data.events.name,omitempty"`
+	DataIdxImportId string `json:"data.idxImportId,omitempty"`
 }
 type GroupedVisited struct {
 	Count int    `json:"count(*)"`
