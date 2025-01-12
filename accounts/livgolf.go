@@ -137,8 +137,14 @@ func (a GroupedLIVGolfItems) ToCSV() string {
 	for _, item := range a {
 
 		var row []string
+		name := item.Name
+
+		if name == "" {
+			name = item.DataIdxImportId
+		}
+
 		row = append(row, strconv.Itoa(item.Count))
-		row = append(row, item.Name)
+		row = append(row, name)
 		w.Write(row)
 	}
 
