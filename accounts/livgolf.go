@@ -72,17 +72,17 @@ type NameSince struct {
 // Preferences representa las preferencias de la cuenta
 type Preferences struct {
 	Marketing Marketing `json:"marketing,omitempty"`
-	Terms     ToS       `json:"terms,omitempty"`
-	Privacy   Livgolf   `json:"privacy,omitempty"`
+	Terms     Terms     `json:"terms,omitempty"`
+	Privacy   Privacy   `json:"privacy,omitempty"`
 }
 
-// Livgolf representa las preferencias de la cuenta
-type Livgolf struct {
-	Livgolf      ConsentDetail `json:"livgolf,omitempty"`
-	Majesticks   ConsentDetail `json:"majesticks,omitempty"`
-	SportsBreaks ConsentDetail `json:"sportsBreaks,omitempty"`
+// Privacy representa las preferencias de la cuenta
+type Privacy struct {
+	Livgolf ConsentDetail `json:"livgolf,omitempty"`
+	// Majesticks   ConsentDetail `json:"majesticks,omitempty"`
+	// SportsBreaks ConsentDetail `json:"sportsBreaks,omitempty"`
 }
-type ToS struct {
+type Terms struct {
 	ToS ConsentDetail `json:"ToS,omitempty"`
 }
 type Marketing struct {

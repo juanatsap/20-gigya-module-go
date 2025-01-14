@@ -80,8 +80,9 @@ func (a *AccountsAPI) Search(query string, limit int) (Accounts, int, error) {
 	}
 
 	// Verificar si hubo un error en la respuesta
+	total = response.TotalCount
+
 	if response.ErrorCode != 0 {
-		total = response.TotalCount
 		return nil, total, fmt.Errorf("API error %d: %s", response.ErrorCode, response.StatusReason)
 	}
 
@@ -142,12 +143,12 @@ func (a *AccountsAPI) GetAccountInfo(UID string) (Account, error) {
 					IsConsentGranted: response.Preferences.Marketing.Email.IsConsentGranted,
 				},
 			},
-			Terms: ToS{
+			Terms: Terms{
 				ToS: ConsentDetail{
 					IsConsentGranted: response.Preferences.Terms.ToS.IsConsentGranted,
 				},
 			},
-			Privacy: Livgolf{
+			Privacy: Privacy{
 				Livgolf: ConsentDetail{
 					IsConsentGranted: response.Preferences.Privacy.Livgolf.IsConsentGranted,
 				},
@@ -228,10 +229,11 @@ func (a *AccountsAPI) ImportFullAccount(account Account) (Account, error) {
 	// Añadir parámetros
 	method := "accounts.importFullAccount"
 	params := map[string]string{
-		"apiKey":       a.apiKey,
-		"userKey":      a.userKey,
-		"secret":       a.secretKey,
-		"importPolicy": "upsert",
+		"apiKey":  a.apiKey,
+		"userKey": a.userKey,
+		"secret":  a.secretKey,
+		// "importPolicy": "upsert",
+		"importPolicy": "insert",
 		"account":      account.AsJSON(),
 	}
 
@@ -370,7 +372,8 @@ func (a *AccountsAPI) DeleteAccountsForIdxImportId(idxImportId string) ([]Accoun
 		return []Account{}, err
 	}
 	if len(accounts) == 0 {
-		log.Printf("No accounts found for idxImportId: %s\n", idxImportId)
+		// ui.CreateBox(fmt.Sprintf("No accounts found for idxImportId: %s", idxImportId), "Highly Customized Terminal Box Maker", 0)
+		log.Debugf("No accounts found for idxImportId: %s\n", idxImportId)
 		return []Account{}, nil
 	}
 	for i, account := range accounts {
@@ -380,7 +383,7 @@ func (a *AccountsAPI) DeleteAccountsForIdxImportId(idxImportId string) ([]Accoun
 			log.Errorf("i: %d - Error deleting account: %s\n", i, err)
 			return []Account{}, err
 		} else {
-			log.Printf("i: %d - Account deleted: %s, %s\n", i, account.UID, account.Profile.Email)
+			log.Printf("i: %d - Account deleted: %s\n", i, account.Profile.Email)
 		}
 	}
 	return accounts, nil

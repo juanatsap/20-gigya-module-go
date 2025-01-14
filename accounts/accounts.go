@@ -26,6 +26,7 @@ type Account struct {
 	IsRegistered         bool                    `json:"isRegistered,omitempty"`
 	Password             Password                `json:"password,omitempty"`
 	RegSource            string                  `json:"regSource,omitempty"`
+	Error                string                  `json:"error,omitempty"`
 }
 type Accounts []Account
 
@@ -38,6 +39,7 @@ type Profile struct {
 	Zip       string `json:"zip,omitempty"`
 	City      string `json:"city,omitempty"`
 	State     string `json:"state,omitempty"`
+	Locale    string `json:"locale,omitempty"`
 }
 type Password struct {
 	Created        string       `json:"created,omitempty"`
