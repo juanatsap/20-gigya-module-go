@@ -25,6 +25,7 @@ type Account struct {
 	IsVerified           bool                    `json:"isVerified,omitempty"`
 	IsRegistered         bool                    `json:"isRegistered,omitempty"`
 	Password             Password                `json:"password,omitempty"`
+	RegSource            string                  `json:"regSource,omitempty"`
 }
 type Accounts []Account
 
