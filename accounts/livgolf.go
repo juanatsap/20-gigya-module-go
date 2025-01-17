@@ -34,7 +34,14 @@ type Data struct {
 	// Add data.utility.isAthlete
 	Utility         *Utility         `json:"utility,omitempty"`
 	Personalization *Personalization `json:"personalization,omitempty"`
+
+	// Inline the Account struct here, but still call it "account" in JSON
+	Account struct {
+		MarkedForDeletion     string `json:"markedForDeletion,omitempty"`
+		MarkedForDeletionDate string `json:"markedForDeletionDate,omitempty"`
+	} `json:"account,omitempty"`
 }
+
 type Personalization struct {
 	SiteLanguageP24 string `json:"siteLanguageP24,omitempty"`
 	SiteLanguage    string `json:"siteLanguage,omitempty"`

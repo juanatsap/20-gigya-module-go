@@ -23,6 +23,7 @@ type Account struct {
 	Emails               Emails                  `json:"emails,omitempty"`
 	LoginIDs             LoginIDs                `json:"loginIDs,omitempty"`
 	IsVerified           bool                    `json:"isVerified,omitempty"`
+	IsActive             bool                    `json:"isActive,omitempty"`
 	IsRegistered         bool                    `json:"isRegistered,omitempty"`
 	Password             Password                `json:"password,omitempty"`
 	RegSource            string                  `json:"regSource,omitempty"`
