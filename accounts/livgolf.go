@@ -27,6 +27,7 @@ type Data struct {
 	Events     *Event    `json:"events,omitempty"`
 	RipperGC   *RipperGC `json:"rippergc,omitempty"`
 	DataSource string    `json:"dataSource,omitempty"`
+	Fantasy    *Fantasy  `json:"fantasy,omitempty"`
 
 	/* ╭──────────────────────────────────────────╮ */
 	/* │                 OLYMPICS                 │ */
@@ -56,6 +57,9 @@ type Trivia struct {
 	Question string `json:"question,omitempty"`
 	Answer   string `json:"answer,omitempty"`
 }
+type Fantasy struct {
+	TeamName string `json:"teamName,omitempty"`
+}
 
 func (a Data) AsJSON() string {
 	data, _ := json.Marshal(a)
@@ -81,6 +85,9 @@ type Preferences struct {
 	Marketing Marketing `json:"marketing,omitempty"`
 	Terms     Terms     `json:"terms,omitempty"`
 	Privacy   Privacy   `json:"privacy,omitempty"`
+	Livx      struct {
+		ConsentDetail
+	} `json:"livx,omitempty"`
 }
 
 // Privacy representa las preferencias de la cuenta
@@ -323,4 +330,62 @@ func (account AccountWithArrays) GetGigyaAccount() Account {
 			Visited: visitedAsString,
 		},
 	}
+}
+
+func (a *AccountsAPI) FixAccountInfo(account Account, isLite bool) (Account, error) {
+
+	// Añadir parámetros
+
+	/*
+
+			            "emails": {
+		                "verified": [],
+		                "unverified": []
+		            },
+	*/
+	method := "accounts.setAccountInfo"
+	params := map[string]string{
+		"UID":          account.UID,
+		"apiKey":       a.apiKey,
+		"userKey":      a.userKey,
+		"secret":       a.secretKey,
+		"profile":      account.Profile.AsJSON(),
+		"emails":       `[{"verified": [` + account.Profile.Email + `]}}]`,
+		"isVerified":   `true`,
+		"loginIDs":     `["` + account.Profile.Email + `"]`,
+		"isRegistered": `true`,
+	}
+	// Preparar la URL de la solicitud
+	baseURL := fmt.Sprintf("https://%s/%s", a.apiDomain, method)
+	data := url.Values{}
+	for key, value := range params {
+		data.Set(key, value)
+	}
+
+	// Enviar la solicitud POST
+	resp, err := http.Post(baseURL, "application/x-www-form-urlencoded", strings.NewReader(data.Encode()))
+	if err != nil {
+		return Account{}, err
+	}
+	defer resp.Body.Close()
+
+	// Leer la respuesta
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return Account{}, err
+	}
+
+	// Deserializar la respuesta JSON en SearchResponse
+	var response SetAccountInfoResponse
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return Account{}, err
+	}
+
+	// Verificar si hubo un error en la respuesta
+	if response.ErrorCode != 0 {
+		return Account{}, fmt.Errorf("API error %d: %s", response.ErrorCode, response.StatusReason)
+	}
+
+	return Account{UID: response.UID}, nil
 }

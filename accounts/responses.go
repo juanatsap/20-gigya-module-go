@@ -23,6 +23,9 @@ type GetAccountInfoResponse struct {
 	IsVerified           bool                    `json:"isVerified,omitempty"`
 	IsRegistered         bool                    `json:"isRegistered,omitempty"`
 	Password             Password                `json:"password,omitempty"`
+	RegSource            string                  `json:"regSource,omitempty"`
+	Error                string                  `json:"error,omitempty"`
+	IsActive             bool                    `json:"isActive,omitempty"`
 }
 type SetAccountInfoResponse struct {
 	CallID       string `json:"callId"`

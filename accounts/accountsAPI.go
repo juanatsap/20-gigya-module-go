@@ -75,7 +75,9 @@ func (a *AccountsAPI) Search(query string, limit int) (Accounts, int, error) {
 	// Deserializar la respuesta JSON en SearchResponse
 	var response SearchResponse
 	err = json.Unmarshal(body, &response)
+	bodyAsString := string(body)
 	if err != nil {
+		log.Errorf("Error parsing JSON for body %v", bodyAsString)
 		return nil, total, err
 	}
 
@@ -97,7 +99,7 @@ func (a *AccountsAPI) GetAccountInfo(UID string) (Account, error) {
 		"apiKey":  a.apiKey,
 		"userKey": a.userKey,
 		"secret":  a.secretKey,
-		"include": "profile, data, preferences",
+		"include": "profile, data, preferences, emails, loginIDs",
 	}
 
 	// Preparar la URL de la solicitud
@@ -124,6 +126,7 @@ func (a *AccountsAPI) GetAccountInfo(UID string) (Account, error) {
 	var response GetAccountInfoResponse
 	err = json.Unmarshal(body, &response)
 	if err != nil {
+		log.Errorf("Error parsing JSON for UID %s: %v", UID, err)
 		return Account{}, err
 	}
 
@@ -155,6 +158,17 @@ func (a *AccountsAPI) GetAccountInfo(UID string) (Account, error) {
 			},
 		},
 		Created: response.Created,
+		Emails:  response.Emails,
+		LoginIDs: LoginIDs{
+			Emails: response.LoginIDs.Emails,
+		},
+		IsVerified:     response.IsVerified,
+		IsRegistered:   response.IsRegistered,
+		Password:       response.Password,
+		RegSource:      response.RegSource,
+		HasLiteAccount: response.HasLiteAccount,
+		HasFullAccount: response.HasFullAccount,
+		IsActive:       response.IsActive,
 	}
 
 	return account, nil
@@ -175,13 +189,6 @@ func (a *AccountsAPI) SetAccountInfo(account Account, isLite bool) (Account, err
 	// Add isLite: true if isLite is true
 	if isLite {
 		params["isLite"] = "true"
-	}
-
-	if account.Data.FavoriteTeam != nil {
-		// Check if both favoriteTeam name and favoriteTeam since are empty. if yes, set this fixed data section: {data: {favoriteTeam: null}}
-		if account.Data.FavoriteTeam.Name == "" && account.Data.FavoriteTeam.Since == "" {
-			params["data"] = `{"favoriteTeam":null}`
-		}
 	}
 
 	if account.Data.Competition != nil {
