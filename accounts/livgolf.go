@@ -41,6 +41,9 @@ type Data struct {
 		MarkedForDeletion     string `json:"markedForDeletion,omitempty"`
 		MarkedForDeletionDate string `json:"markedForDeletionDate,omitempty"`
 	} `json:"account,omitempty"`
+
+	LiveLikeID    string `json:"liveLikeID,omitempty"`
+	LiveLikeToken string `json:"liveLikeToken,omitempty"`
 }
 
 type Personalization struct {
