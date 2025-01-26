@@ -395,3 +395,44 @@ func (a *AccountsAPI) DeleteAccountsForIdxImportId(idxImportId string) ([]Accoun
 	}
 	return accounts, nil
 }
+func (a *AccountsAPI) GetJWTPublicKey() (GetJWTPublicKeyResponse, error) {
+	// Añadir parámetros
+	method := "accounts.getJWTPublicKey"
+	params := map[string]string{
+		"apiKey": a.apiKey,
+	}
+
+	// Preparar la URL de la solicitud
+	baseURL := fmt.Sprintf("https://%s/%s", a.apiDomain, method)
+	data := url.Values{}
+	for key, value := range params {
+		data.Set(key, value)
+	}
+
+	// Enviar la solicitud POST
+	resp, err := http.Post(baseURL, "application/x-www-form-urlencoded", strings.NewReader(data.Encode()))
+	if err != nil {
+		return GetJWTPublicKeyResponse{}, err
+	}
+	defer resp.Body.Close()
+
+	// Leer la respuesta
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return GetJWTPublicKeyResponse{}, err
+	}
+
+	// Deserializar la respuesta JSON en SearchResponse
+	var response GetJWTPublicKeyResponse
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return GetJWTPublicKeyResponse{}, err
+	}
+
+	// Verificar si hubo un error en la respuesta
+	if response.ErrorCode != 0 {
+		return GetJWTPublicKeyResponse{}, fmt.Errorf("API error %d: %s\n\nDetails: %s", response.ErrorCode, response.StatusReason, response.ErrorDetails)
+	}
+
+	return response, nil
+}

@@ -70,3 +70,20 @@ type DeleteAccountResponse struct {
 	Time         string `json:"time"`
 	UID          string `json:"UID"`
 }
+
+type GetJWTPublicKeyResponse struct {
+	CallID       string `json:"callId"`
+	ErrorCode    int    `json:"errorCode"`
+	ErrorMessage string `json:"errorMessage"`
+	ErrorDetails string `json:"errorDetails"`
+	APIVersion   int    `json:"apiVersion"`
+	StatusCode   int    `json:"statusCode"`
+	StatusReason string `json:"statusReason"`
+	Time         string `json:"time"`
+	Alg          string `json:"alg"`
+	Kty          string `json:"kty"`
+	N            string `json:"n"`
+	E            string `json:"e"`
+	Use          string `json:"use"`
+	Kid          string `json:"kid"`
+}
