@@ -3,7 +3,9 @@ package accounts
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
+	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -203,4 +205,9 @@ func (a *Account) FixVisited() {
 	if a.Data.Visited == "" {
 		a.Data.Visited = ""
 	}
+}
+func (a *Account) GenerateUID() {
+	a.UID = uuid.New().String()
+	a.UID = strings.ReplaceAll(a.UID, "-", "")
+	fmt.Printf("UID for account %s: %s", a.Profile.Email, a.UID)
 }
