@@ -28,16 +28,24 @@ type ExtensionClaims struct {
 }
 
 type Data struct {
-	Params      Params           `json:"params"`
-	AccountInfo accounts.Account `json:"accountInfo"`
-	Context     Context          `json:"context"`
+	Params      Params           `json:"params,omitempty"`
+	AccountInfo accounts.Account `json:"accountInfo,omitempty"`
+	Context     Context          `json:"context,omitempty"`
 }
 
 type Params struct {
-	LoginId  string `json:"loginId"`
-	Password string `json:"password"`
+	LoginId    string `json:"loginId,omitempty"`
+	Password   string `json:"password,omitempty"`
+	Email      string `json:"email,omitempty"`
+	Locale     string `json:"locale,omitempty"`
+	FirstName  string `json:"firstName,omitempty"`
+	LastName   string `json:"lastName,omitempty"`
+	Country    string `json:"country,omitempty"`
+	PostalCode string `json:"postalcode,omitempty"`
+	State      string `json:"state,omitempty"`
+	StateName  string `json:"stateName,omitempty"`
 }
 
 type Context struct {
-	ClientIP string `json:"clientIP"`
+	ClientIP string `json:"clientIP,omitempty"`
 }
