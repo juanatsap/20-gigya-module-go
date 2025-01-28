@@ -12,6 +12,7 @@ import (
 // Account representa una cuenta individual en Gigya
 type Account struct {
 	UID                  string                  `json:"UID,omitempty"`
+	LoginID              string                  `json:"loginID,omitempty"`
 	Profile              Profile                 `json:"profile,omitempty"`
 	Data                 Data                    `json:"data,omitempty"`
 	Preferences          Preferences             `json:"preferences,omitempty"`

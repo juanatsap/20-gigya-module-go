@@ -31,19 +31,27 @@ type Data struct {
 	Params      Params           `json:"params,omitempty"`
 	AccountInfo accounts.Account `json:"accountInfo,omitempty"`
 	Context     Context          `json:"context,omitempty"`
+	// Preferences Preferences      `json:"preferences,omitempty"`
+}
+
+type Preferences struct {
+	Livx struct {
+		IsConsentGranted string `json:"isConsentGranted,omitempty"`
+	} `json:"livx"`
 }
 
 type Params struct {
-	LoginId    string `json:"loginId,omitempty"`
-	Password   string `json:"password,omitempty"`
-	Email      string `json:"email,omitempty"`
-	Locale     string `json:"locale,omitempty"`
-	FirstName  string `json:"firstName,omitempty"`
-	LastName   string `json:"lastName,omitempty"`
-	Country    string `json:"country,omitempty"`
-	PostalCode string `json:"postalcode,omitempty"`
-	State      string `json:"state,omitempty"`
-	StateName  string `json:"stateName,omitempty"`
+	LoginId     string      `json:"loginId,omitempty"`
+	Password    string      `json:"password,omitempty"`
+	Email       string      `json:"email,omitempty"`
+	Locale      string      `json:"locale,omitempty"`
+	FirstName   string      `json:"firstName,omitempty"`
+	LastName    string      `json:"lastName,omitempty"`
+	Country     string      `json:"country,omitempty"`
+	PostalCode  string      `json:"postalcode,omitempty"`
+	State       string      `json:"state,omitempty"`
+	StateName   string      `json:"stateName,omitempty"`
+	Preferences Preferences `json:"preferences,omitempty"`
 }
 
 type Context struct {
