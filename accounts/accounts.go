@@ -210,5 +210,5 @@ func (a *Account) FixVisited() {
 func (a *Account) GenerateUID() {
 	a.UID = uuid.New().String()
 	a.UID = strings.ReplaceAll(a.UID, "-", "")
-	fmt.Printf("UID for account %s: %s", a.Profile.Email, a.UID)
+	// fmt.Printf("UID for account %s: %s", a.Profile.Email, a.UID)
 }
