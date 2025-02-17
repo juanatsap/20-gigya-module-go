@@ -46,9 +46,10 @@ type Profile struct {
 	Locale    string `json:"locale,omitempty"`
 }
 type Password struct {
-	Created        string       `json:"created,omitempty"`
-	HashedPassword string       `json:"hashedPassword,omitempty"`
-	HashSettings   HashSettings `json:"hashSettings,omitempty"`
+	Created                string       `json:"created,omitempty"`
+	HashedPassword         string       `json:"hashedPassword,omitempty"`
+	HashSettings           HashSettings `json:"hashSettings,omitempty"`
+	CompoundHashedPassword string       `json:"compoundHashedPassword,omitempty"`
 }
 type HashSettings struct {
 	Algorithm string `json:"algorithm,omitempty"`
