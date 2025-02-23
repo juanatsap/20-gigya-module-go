@@ -5,6 +5,9 @@
 		},
 		{
 			"path": "../../27-livgolf-module-go"
+		},
+		{
+			"path": "../../23-txeo-tools-library"
 		}
 	],
 	"settings": {}
