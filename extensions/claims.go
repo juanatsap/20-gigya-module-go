@@ -41,17 +41,26 @@ type Preferences struct {
 }
 
 type Params struct {
-	LoginId     string      `json:"loginId,omitempty"`
-	Password    string      `json:"password,omitempty"`
-	Email       string      `json:"email,omitempty"`
-	Locale      string      `json:"locale,omitempty"`
-	FirstName   string      `json:"firstName,omitempty"`
-	LastName    string      `json:"lastName,omitempty"`
-	Country     string      `json:"country,omitempty"`
-	PostalCode  string      `json:"postalcode,omitempty"`
-	State       string      `json:"state,omitempty"`
-	StateName   string      `json:"stateName,omitempty"`
-	Preferences Preferences `json:"preferences,omitempty"`
+	LoginId     string       `json:"loginId,omitempty"`
+	Password    string       `json:"password,omitempty"`
+	Email       string       `json:"email,omitempty"`
+	Locale      string       `json:"locale,omitempty"`
+	FirstName   string       `json:"firstName,omitempty"`
+	LastName    string       `json:"lastName,omitempty"`
+	Country     string       `json:"country,omitempty"`
+	PostalCode  string       `json:"postalcode,omitempty"`
+	State       string       `json:"state,omitempty"`
+	StateName   string       `json:"stateName,omitempty"`
+	Data        DataFromFrom `json:"data,omitempty"`
+	Preferences Preferences  `json:"preferences"`
+}
+
+type DataFromFrom struct {
+	Fantasy Fantasy `json:"fantasy,omitempty"`
+}
+
+type Fantasy struct {
+	TeamName string `json:"teamName,omitempty"`
 }
 
 type Context struct {
