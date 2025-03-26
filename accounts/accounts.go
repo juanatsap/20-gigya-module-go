@@ -122,8 +122,13 @@ func (a Account) PrintShort() {
 	fmt.Println("---------------------------------------------------")
 }
 func (a Account) PrintLine(index int) {
-	// Only in one line
-	fmt.Printf("%d. UID: %s, Email: %s\n", index, a.UID, a.Profile.Email)
+
+	// Check if it has fantasy team. If yes, print it
+	if a.Data.Fantasy.TeamName != "" {
+		fmt.Printf("%d. UID: %s, Email: %s, Favorite Team: %s\n", index, a.UID, a.Profile.Email, a.Data.Fantasy.TeamName)
+	} else {
+		fmt.Printf("%d. UID: %s, Email: %s\n", index, a.UID, a.Profile.Email)
+	}
 
 }
 func (a Account) PrintLineWith(index int, field string) {
