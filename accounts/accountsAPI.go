@@ -182,8 +182,8 @@ func (a *AccountsAPI) SetAccountInfo(account Account, isLite bool) (Account, err
 		"apiKey":  a.apiKey,
 		"userKey": a.userKey,
 		"secret":  a.secretKey,
-		"profile": account.Profile.AsJSON(),
-		"data":    account.Data.AsJSON(),
+		// "profile": account.Profile.AsJSON(),
+		"data": account.Data.AsJSON(),
 	}
 
 	// Add isLite: true if isLite is true
@@ -281,7 +281,7 @@ func (a *AccountsAPI) ImportFullAccount(account Account) (Account, error) {
 func (a *AccountsAPI) DeleteAccount(UID string) (Account, error) {
 
 	// Añadir parámetros
-	method := "accounts.deleteAccount"
+	method := "accounts.setAccountInfo"
 	params := map[string]string{
 		"UID":     UID,
 		"apiKey":  a.apiKey,

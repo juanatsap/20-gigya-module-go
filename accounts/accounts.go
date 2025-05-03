@@ -124,8 +124,10 @@ func (a Account) PrintShort() {
 func (a Account) PrintLine(index int) {
 
 	// Check if it has fantasy team. If yes, print it
-	if a.Data.Fantasy.TeamName != "" {
+	if a.Data.Fantasy != nil && a.Data.Fantasy.TeamName != "" {
 		fmt.Printf("%d. UID: %s, Email: %s, Favorite Team: %s\n", index, a.UID, a.Profile.Email, a.Data.Fantasy.TeamName)
+	} else if a.RegSource != "" {
+		fmt.Printf("%d. UID: %s, Email: %s, RegSource: %s\n", index, a.UID, a.Profile.Email, a.RegSource)
 	} else {
 		fmt.Printf("%d. UID: %s, Email: %s\n", index, a.UID, a.Profile.Email)
 	}

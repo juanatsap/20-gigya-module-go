@@ -51,7 +51,8 @@ type Personalization struct {
 	SiteLanguage    string `json:"siteLanguage,omitempty"`
 }
 type Utility struct {
-	IsAthlete bool `json:"isAthlete,omitempty"`
+	IsAthlete          bool   `json:"isAthlete,omitempty"`
+	RegistrationSource string `json:"registrationSource,omitempty"`
 }
 type RipperGC struct {
 	Trivia *Trivia `json:"trivia,omitempty"`
