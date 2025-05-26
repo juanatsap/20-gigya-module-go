@@ -21,6 +21,8 @@ type Account struct {
 	CreatedTimestamp     int64                   `json:"createdTimestamp,omitempty"`
 	LastUpdated          string                  `json:"lastUpdated,omitempty"`
 	LastUpdatedTimestamp int64                   `json:"lastUpdatedTimestamp,omitempty"`
+	LastLogin            string                  `json:"lastLogin,omitempty"`
+	LastLoginTimestamp   int64                   `json:"lastLoginTimestamp,omitempty"`
 	HasLiteAccount       bool                    `json:"hasLiteAccount,omitempty"`
 	HasFullAccount       bool                    `json:"hasFullAccount,omitempty"`
 	Emails               Emails                  `json:"emails,omitempty"`
@@ -31,6 +33,7 @@ type Account struct {
 	Password             Password                `json:"password,omitempty"`
 	RegSource            string                  `json:"regSource,omitempty"`
 	Error                string                  `json:"error,omitempty"`
+	Identities           Identities              `json:"identities,omitempty"`
 }
 type Accounts []Account
 
@@ -63,6 +66,12 @@ type Emails struct {
 type LoginIDs struct {
 	Emails []string `json:"emails,omitempty"`
 }
+
+type Identity struct {
+	ProviderUID string `json:"providerUID,omitempty"`
+}
+
+type Identities []Identity
 
 func (a Account) Print() {
 	fmt.Println("--------------------")
