@@ -53,23 +53,27 @@ func (a *AccountsAPI) SearchWithCursor(query string, limit int, cursor string) (
 	// 	limit = 100
 	// }
 
-	// Add the limit to the query if specified
-	if limit > 0 {
+	// Add the limit to the query if this is the first call (no cursor provided)
+	if cursor == "" && limit > 0 {
+		// Only add limit to the query for the first call
 		query = fmt.Sprintf("%s limit %d", query, limit)
 	}
 
 	// Prepare the API request parameters
 	method := "accounts.search"
 	params := map[string]string{
-		"query":   query,
 		"apiKey":  a.apiKey,
 		"userKey": a.userKey,
 		"secret":  a.secretKey,
 	}
 
-	// Add the cursor parameter if provided
-	if cursor != "" {
-		params["nextCursor"] = cursor
+	// If this is the first call, use query and openCursor=true
+	if cursor == "" {
+		params["query"] = query
+		params["openCursor"] = "true"
+	} else {
+		// For subsequent calls, use the cursor ID from the previous call
+		params["cursorId"] = cursor
 	}
 
 	// Build the request URL
