@@ -46,9 +46,19 @@ type Data struct {
 	LiveLikeToken string `json:"liveLikeToken,omitempty"`
 }
 
+// FavoritesDiscipline represents an individual discipline that a user has marked as favorite
+type FavoritesDiscipline struct {
+	OcsCode  string      `json:"ocsCode,omitempty"`
+	OdfType  string      `json:"odfType,omitempty"`
+	GameType interface{} `json:"GameType,omitempty"`
+	OdfCode  string      `json:"odfCode,omitempty"`
+}
+
+// Personalization contains user personalization preferences
 type Personalization struct {
-	SiteLanguageP24 string `json:"siteLanguageP24,omitempty"`
-	SiteLanguage    string `json:"siteLanguage,omitempty"`
+	SiteLanguageP24     string                `json:"siteLanguageP24,omitempty"`
+	SiteLanguage        string                `json:"siteLanguage,omitempty"`
+	FavoritesDisciplines []FavoritesDiscipline `json:"favoritesDisciplines,omitempty"`
 }
 type Utility struct {
 	IsAthlete          bool   `json:"isAthlete,omitempty"`
