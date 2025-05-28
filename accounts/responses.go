@@ -47,6 +47,7 @@ type SearchResponse struct {
 	Results      Accounts `json:"results"`
 	ObjectsCount int      `json:"objectsCount"`
 	TotalCount   int      `json:"totalCount"`
+	NextCursor   string   `json:"nextCursor,omitempty"` // Cursor for paginated results
 }
 type ImportFullAccountResponse struct {
 	CallID       string `json:"callId"`

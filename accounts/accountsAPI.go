@@ -32,17 +32,33 @@ func NewAccountsAPI(apiKey, userKey, secretKey, apiDomain string) *AccountsAPI {
 /* ╭──────────────────────────────────────────╮ */
 /* │            ACCOUNT API CALLS             │ */
 /* ╰──────────────────────────────────────────╯ */
-func (a *AccountsAPI) Search(query string, limit int) (Accounts, int, error) {
 
+// SearchWithCursor performs a search with pagination support using cursor
+// Parameters:
+// - query: The search query to execute
+// - limit: The maximum number of results to return per request (max 100 recommended)
+// - cursor: The cursor string from a previous search result, empty string for first page
+// Returns:
+// - accounts: The list of accounts matching the query
+// - totalCount: The total number of accounts matching the query
+// - nextCursor: Cursor string for retrieving the next batch, empty if no more results
+// - error: Any error that occurred during the search
+func (a *AccountsAPI) SearchWithCursor(query string, limit int, cursor string) (Accounts, int, string, error) {
 	if limit < 1 {
 		limit = 1
 	}
 
+	// // Limit should not exceed 100 for reliable results with cursor pagination
+	// if limit > 100 {
+	// 	limit = 100
+	// }
+
+	// Add the limit to the query if specified
 	if limit > 0 {
 		query = fmt.Sprintf("%s limit %d", query, limit)
 	}
 
-	// Añadir parámetros
+	// Prepare the API request parameters
 	method := "accounts.search"
 	params := map[string]string{
 		"query":   query,
@@ -51,44 +67,107 @@ func (a *AccountsAPI) Search(query string, limit int) (Accounts, int, error) {
 		"secret":  a.secretKey,
 	}
 
-	// Preparar la URL de la solicitud
+	// Add the cursor parameter if provided
+	if cursor != "" {
+		params["nextCursor"] = cursor
+	}
+
+	// Build the request URL
 	baseURL := fmt.Sprintf("https://%s/%s", a.apiDomain, method)
 	data := url.Values{}
 	for key, value := range params {
 		data.Set(key, value)
 	}
-	total := 0
 
-	// Enviar la solicitud POST
+	// Send the POST request
 	resp, err := http.Post(baseURL, "application/x-www-form-urlencoded", strings.NewReader(data.Encode()))
 	if err != nil {
-		return nil, total, err
+		return nil, 0, "", err
 	}
 	defer resp.Body.Close()
 
-	// Leer la respuesta
+	// Read the response body
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, total, err
+		return nil, 0, "", err
 	}
 
-	// Deserializar la respuesta JSON en SearchResponse
+	// Parse the JSON response
 	var response SearchResponse
 	err = json.Unmarshal(body, &response)
-	bodyAsString := string(body)
 	if err != nil {
-		log.Errorf("Error parsing JSON for body %v", bodyAsString)
-		return nil, total, err
+		log.Errorf("Error parsing JSON for body %v", string(body))
+		return nil, 0, "", err
 	}
 
-	// Verificar si hubo un error en la respuesta
-	total = response.TotalCount
-
+	// Check for API errors
 	if response.ErrorCode != 0 {
-		return nil, total, fmt.Errorf("API error %d: %s", response.ErrorCode, response.StatusReason)
+		return nil, 0, "", fmt.Errorf("API error %d: %s", response.ErrorCode, response.StatusReason)
 	}
 
-	return response.Results, total, nil
+	return response.Results, response.TotalCount, response.NextCursor, nil
+}
+
+// SearchAll retrieves all accounts matching the specified query by making multiple paginated requests
+// This method will automatically handle the pagination using cursors
+// Parameters:
+// - query: The search query to execute
+// - batchSize: The number of records to retrieve per request (max 100 recommended)
+// - progressCallback: Optional callback function to report progress (can be nil)
+// Returns:
+// - accounts: All accounts matching the query
+// - totalCount: The total number of accounts matching the query
+// - error: Any error that occurred during the search
+func (a *AccountsAPI) SearchAll(query string, batchSize int, progressCallback func(fetched, total int)) (Accounts, int, error) {
+	if batchSize < 1 {
+		batchSize = 100 // Default batch size
+	}
+
+	// Cap the batch size to a reasonable value
+	if batchSize > 100 {
+		batchSize = 100
+	}
+
+	// Initial search to get the first batch and total count
+	accounts, totalCount, nextCursor, err := a.SearchWithCursor(query, batchSize, "")
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// Call the progress callback if provided
+	if progressCallback != nil {
+		progressCallback(len(accounts), totalCount)
+	}
+
+	// If there are more results, continue fetching
+	for nextCursor != "" {
+		// Fetch the next batch
+		nextBatch, _, nextCursorVal, err := a.SearchWithCursor(query, batchSize, nextCursor)
+		if err != nil {
+			// Return what we've got so far along with the error
+			return accounts, totalCount, fmt.Errorf("error fetching batch with cursor %s: %w", nextCursor, err)
+		}
+
+		// Append the results
+		accounts = append(accounts, nextBatch...)
+
+		// Update the cursor for the next iteration
+		nextCursor = nextCursorVal
+
+		// Call the progress callback if provided
+		if progressCallback != nil {
+			progressCallback(len(accounts), totalCount)
+		}
+	}
+
+	return accounts, totalCount, nil
+}
+
+// Search maintains backward compatibility with existing code
+// Deprecated: Use SearchWithCursor or SearchAll instead
+func (a *AccountsAPI) Search(query string, limit int) (Accounts, int, error) {
+	accounts, totalCount, _, err := a.SearchWithCursor(query, limit, "")
+	return accounts, totalCount, err
 }
 func (a *AccountsAPI) GetAccountInfo(UID string) (Account, error) {
 
