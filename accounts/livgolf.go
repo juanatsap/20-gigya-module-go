@@ -38,8 +38,8 @@ type Data struct {
 
 	// Inline the Account struct here, but still call it "account" in JSON
 	Account struct {
-		MarkedForDeletion     string `json:"markedForDeletion,omitempty"`
-		MarkedForDeletionDate string `json:"markedForDeletionDate,omitempty"`
+		MarkedForDeletion     interface{} `json:"markedForDeletion,omitempty"`
+		MarkedForDeletionDate string      `json:"markedForDeletionDate,omitempty"`
 	} `json:"account,omitempty"`
 
 	LiveLikeID    string `json:"liveLikeID,omitempty"`
@@ -78,6 +78,25 @@ type Fantasy struct {
 func (a Data) AsJSON() string {
 	data, _ := json.Marshal(a)
 	return string(data)
+}
+
+// GetMarkedForDeletion safely returns the markedForDeletion value as a string
+func (d Data) GetMarkedForDeletion() string {
+	if d.Account.MarkedForDeletion == nil {
+		return ""
+	}
+	
+	switch v := d.Account.MarkedForDeletion.(type) {
+	case string:
+		return v
+	case bool:
+		if v {
+			return "true"
+		}
+		return "false"
+	default:
+		return fmt.Sprintf("%v", v)
+	}
 }
 
 // NameWhen representa una estructura con nombre y fecha

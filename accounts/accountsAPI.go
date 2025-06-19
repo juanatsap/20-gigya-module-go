@@ -100,7 +100,39 @@ func (a *AccountsAPI) SearchWithCursor(query string, limit int, cursor string) (
 	var response SearchResponse
 	err = json.Unmarshal(body, &response)
 	if err != nil {
-		log.Errorf("Error parsing JSON for body %v", string(body))
+		log.Errorf("Error parsing JSON: %v", err)
+		
+		// Try to identify the problematic record
+		var debugResponse map[string]interface{}
+		if debugErr := json.Unmarshal(body, &debugResponse); debugErr == nil {
+			if results, ok := debugResponse["results"].([]interface{}); ok {
+				log.Errorf("Found %d results in response", len(results))
+				
+				// Check each result for markedForDeletion field
+				for i, result := range results {
+					if account, ok := result.(map[string]interface{}); ok {
+						uid, _ := account["UID"].(string)
+						
+						// Check for the data.account.markedForDeletion field
+						if data, ok := account["data"].(map[string]interface{}); ok {
+							if accountData, ok := data["account"].(map[string]interface{}); ok {
+								if markedForDeletion, exists := accountData["markedForDeletion"]; exists {
+									markedType := fmt.Sprintf("%T", markedForDeletion)
+									log.Errorf("Record %d (UID: %s) has markedForDeletion of type %s with value: %v", 
+										i, uid, markedType, markedForDeletion)
+									
+									// Log the entire account data for this problematic record
+									if accountJSON, _ := json.MarshalIndent(account, "", "  "); len(accountJSON) > 0 {
+										log.Errorf("Full record data:\n%s", string(accountJSON))
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
 		return nil, 0, "", err
 	}
 
